@@ -49,7 +49,7 @@ M.open = function(state)
 	})
 	state.blocks.open = true
 
-	M.draw_blocks_content(state)
+	M.draw(state)
 end
 
 return M

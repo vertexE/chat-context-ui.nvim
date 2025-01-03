@@ -5,7 +5,7 @@ local store = require("copilot-chat-context.store")
 local float = require("copilot-chat-context.ui.float")
 local loader = require("copilot-chat-context.ui.loader")
 
-local chat = require("copilot-chat-context.external.chat").chat()
+local chat = require("copilot-chat-context.external.chat")
 
 local CMD_PREFIX = "<command>"
 local CMD_POSTFIX = "</command>"
@@ -107,7 +107,7 @@ M.explain = function(state)
 </rules>
 <code>]] .. selected_text .. "</code>"
 
-	chat.ask(prompt, {
+	chat.client().ask(prompt, {
 		headless = true,
 		callback = function(response, _)
 			er_history = response
@@ -153,7 +153,7 @@ M.ask = function(state)
 - if there is a previous question, then this question builds on that one
 </rules>
         ]]
-		chat.ask(pre .. "<question>" .. input .. "</question>\n" .. contexts(state), {
+		chat.client().ask(pre .. "<question>" .. input .. "</question>\n" .. contexts(state), {
 			headless = true,
 			callback = function(response, _)
 				qr_history = "<previous-question>"
@@ -190,7 +190,7 @@ end
 --- @param state ccc.State
 --- @return ccc.State
 M.review = function(state)
-	chat.ask("/Review", {
+	chat.client().ask("/Review", {
 		headless = true,
 	})
 	return state
@@ -201,7 +201,7 @@ end
 --- @return ccc.State
 M.plan = function(state)
 	vim.cmd("tabnew")
-	chat.ask([[
+	chat.client().ask([[
 <rules>
 - describe the next steps to complete the task
 - keep the answer short and in bullets
@@ -236,7 +236,7 @@ M.generate = function(state)
 		end
 		local ns_id = loader.create(_start, _end, should_replace)
 		local prompt_cmd = CMD_PREFIX .. input .. CMD_POSTFIX
-		chat.ask(prompt_header .. prompt_cmd, {
+		chat.client().ask(prompt_header .. prompt_cmd, {
 			headless = true,
 			callback = function(response, _)
 				local lines = vim.split(response, "\n")

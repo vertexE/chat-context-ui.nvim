@@ -14,7 +14,7 @@ M.setup = function()
 	end
 end
 
-M.chat = function()
+M.client = function()
 	return _chat
 end
 

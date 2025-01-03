@@ -1,7 +1,7 @@
 local M = {}
 
 local float = require("copilot-chat-context.ui.float")
-local git = require("copilot-chat-context.git")
+local git = require("copilot-chat-context.external.git")
 
 --- @param state ccc.State
 --- @param ui string

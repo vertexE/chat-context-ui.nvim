@@ -43,7 +43,7 @@ M.draw = function(state)
 	})
 end
 
---- should open a window on the RHS with the AI options (actions + )
+--- should open a window on the RHS with the AI options (actions + contexts)
 --- @param state ccc.State
 M.open = function(state)
 	state.menu.bufnr = float.open(nil, {

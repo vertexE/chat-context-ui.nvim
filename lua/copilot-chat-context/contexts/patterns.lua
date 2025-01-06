@@ -2,22 +2,22 @@ local M = {}
 
 local files = require("copilot-chat-context.external.files")
 local store = require("copilot-chat-context.store")
+local config = require("copilot-chat-context.config")
+local git = require("copilot-chat-context.external.git")
 
 --- @param state ccc.State
 --- @return ccc.State
 M.setup = function(state)
     store.register_action({
-        name = "",
-        msg = "",
+        id = config.open_patterns,
+        notification = "",
         mode = "n",
-        key = ",p",
         ui = "doc_patterns",
         hidden = false,
         apply = M.open,
     })
     store.register_context({
-        name = "",
-        key = ",,p",
+        id = config.patterns,
         ui = "menu",
         active = false,
         getter = M.context,
@@ -33,7 +33,8 @@ end
 --- @param state ccc.State
 --- @return string
 M.context = function(state)
-    local content = files.read(state.patterns.file_path)
+    local dir = vim.fn.expand(config.CACHE)
+    local content = files.read(dir .. "/" .. git.root():gsub("/", "_") .. state.patterns.file)
     if content ~= nil then
         local prompt = "refer to the following coding patterns as examples you should follow\n"
         return prompt .. "<patterns>" .. content .. "\n</patterns>"

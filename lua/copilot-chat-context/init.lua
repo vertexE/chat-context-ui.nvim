@@ -8,31 +8,30 @@ local store = require("copilot-chat-context.store")
 
 local notify = require("copilot-chat-context.external.notify")
 local chat = require("copilot-chat-context.external.chat")
+local config = require("copilot-chat-context.config")
 
-M.setup = function()
-	-- TODO: allow user to set keys
-	-- TODO: allow user to set symbols / prefer text + manage float win sizes
-
+--- setup should be called before require("copilot-chat-context").open()
+--- @param opts ?ccc.PluginOpts
+M.setup = function(opts)
     -- load dependencies
-	notify.setup()
-	chat.setup()
+    notify.setup()
+    chat.setup()
+    config.setup(opts or {})
+    store.setup()
 end
 
---- @usage
---- vim.keymap.set("n", "<leader>ai", function()
----     require("copilot-chat-context").open()
---- end, { desc = "open AI action panel" })
+--- opens the main UI context management window as a floating window on the RHS
 M.open = function()
-	local state = store.state()
-	if vim.api.nvim_buf_is_valid(state.menu.bufnr) then
-		return -- noop when trying to double open
-	end
+    local state = store.state()
+    if vim.api.nvim_buf_is_valid(state.menu.bufnr) then
+        return -- noop when trying to double open
+    end
 
-	assistant.setup(state)
-	contexts.setup(state)
-	menu.setup(state)
-	store.setup() -- TODO: put all of the files/data we create into another location instead of the git repo
-	ui.open(state)
+    assistant.attach(state)
+    contexts.attach(state)
+    menu.attach(state)
+    store.load()
+    ui.open(state)
 end
 
 return M

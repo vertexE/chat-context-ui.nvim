@@ -1,15 +1,15 @@
 local M = {}
 
 local store = require("copilot-chat-context.store")
+local config = require("copilot-chat-context.config")
 
 --- @param state ccc.State
 --- @return ccc.State
-M.setup = function(state)
+M.attach = function(state)
     store.register_action({
-        name = "󰈆",
-        msg = "",
+        id = config.quit,
+        notification = "",
         mode = "n",
-        key = ",q",
         hidden = false,
         ui = "menu",
         apply = M.quit,
@@ -22,11 +22,11 @@ end
 --- @return ccc.State
 M.quit = function(state)
     for _, keymap in ipairs(state.actions) do
-        vim.keymap.del(keymap.mode, keymap.key)
+        vim.keymap.del(keymap.mode, config.key(keymap.id))
     end
 
     for _, keymap in ipairs(state.contexts) do
-        vim.keymap.del("n", keymap.key)
+        vim.keymap.del("n", config.key(keymap.id))
     end
 
     vim.api.nvim_buf_delete(state.menu.bufnr, { force = true })

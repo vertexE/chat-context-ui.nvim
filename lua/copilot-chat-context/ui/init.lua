@@ -7,14 +7,14 @@ local doc = require("copilot-chat-context.ui.doc")
 --- @param state ccc.State
 --- @param ui string
 M.draw = function(state, ui)
-	menu.draw(state)
-	if ui == "blocks_open" then
-		blocks.open(state)
-	elseif ui == "blocks_redraw" then
-		blocks.draw(state)
-	elseif ui == "doc_task" or ui == "doc_patterns" then
-		doc.open(state, ui)
-	end
+    menu.draw(state)
+    if ui == "blocks_open" then
+        blocks.open(state)
+    elseif ui == "blocks_redraw" then
+        blocks.draw(state)
+    elseif ui == "doc_task" or ui == "doc_patterns" then
+        doc.open(state, ui)
+    end
 end
 
 return M

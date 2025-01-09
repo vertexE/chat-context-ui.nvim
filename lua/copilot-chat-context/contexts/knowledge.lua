@@ -1,6 +1,7 @@
 local M = {}
 
 local store = require("copilot-chat-context.store")
+local notify = require("copilot-chat-context.external.notify")
 local config = require("copilot-chat-context.config")
 local file = require("copilot-chat-context.external.files")
 
@@ -111,6 +112,10 @@ end
 --- @return ccc.State
 M.list = function(state)
     state = load_files(state)
+
+    if #state.knowledge.list == 0 then
+        notify.add("no knowledge files found", "INFO", { timeout = 1500, hg = "Comment" })
+    end
     state.knowledge.bufnr = vim.api.nvim_create_buf(true, false)
     store.register_action({
         id = config.preview_knowledge,

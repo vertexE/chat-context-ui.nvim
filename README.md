@@ -1,12 +1,15 @@
 # copilot-chat-context.nvim
 
-a fine grained approach to managing copilot chat context
+Improves how usage of the `CopilotChat.nvim` plugin.
+- predefined actions
+- management of contexts (markdown files, selections, urls, filetree, saved code blocks, etc)
 
 > [!caution]
 > plugin still in a "draft" state.
 
 > [!caution]
 > currently explain and review do not work until this merges https://github.com/CopilotC-Nvim/CopilotChat.nvim/pull/704
+
 
 ## Install
 
@@ -29,5 +32,35 @@ a fine grained approach to managing copilot chat context
         -- other configurations
     },
 ```
+
+
+## Usage
+
+<details>
+<summary>generate</summary>
+<!-- generate:start -->
+generate code inline
+    
+https://github.com/user-attachments/assets/a3bf5181-d21e-4bda-b960-1874a86d71fc
+<!-- generate:end -->
+</details>
+
+<details>
+<summary>explain</summary>
+<!-- explain:start -->
+explain selected code / context
+    
+https://github.com/user-attachments/assets/5b0a34a9-820c-4b20-b812-a3cdc4d15836
+<!-- explain:end -->
+</details>
+
+<details>
+<summary>ask</summary>
+<!-- ask:start -->
+ask a question
+    
+https://github.com/user-attachments/assets/7759016d-8042-43e1-8341-6b023da7407c
+<!-- ask:end -->
+</details>
 
 

@@ -1,6 +1,6 @@
 # copilot-chat-context.nvim
 
-Improves how usage of the `CopilotChat.nvim` plugin.
+Improves UX of the `CopilotChat.nvim` plugin.
 - predefined actions
 - management of contexts (markdown files, selections, urls, filetree, saved code blocks, etc)
 

@@ -5,11 +5,12 @@ local config = require("copilot-chat-context.config")
 
 --- @param state ccc.State
 M.draw = function(state)
-    if vim.g._user_ai_virtual_text_ns == nil then
-        vim.g._user_ai_virtual_text_ns = vim.api.nvim_create_namespace("user_ai_virtual_text")
+    if not vim.api.nvim_buf_is_valid(state.menu.bufnr) then
+        return
     end
 
-    vim.api.nvim_buf_clear_namespace(state.menu.bufnr, vim.g._user_ai_virtual_text_ns, 0, -1)
+    local ns = vim.api.nvim_create_namespace("user_ai_virtual_text")
+    vim.api.nvim_buf_clear_namespace(state.menu.bufnr, ns, 0, -1)
 
     local lines = {}
     for _, action in ipairs(state.actions) do
@@ -38,10 +39,10 @@ M.draw = function(state)
         })
     end
 
-    vim.api.nvim_buf_set_extmark(state.menu.bufnr, vim.g._user_ai_virtual_text_ns, 0, 0, {
-        virt_text = { { "AI Actions", "AIActionsHeader" } },
+    vim.api.nvim_buf_set_extmark(state.menu.bufnr, ns, 0, 0, {
+        virt_text = { { "Actions", "AIActionsHeader" } },
         virt_lines = lines,
-        virt_text_pos = "eol",
+        virt_text_pos = "inline",
     })
 end
 
@@ -49,10 +50,11 @@ end
 --- @param state ccc.State
 M.open = function(state)
     state.menu.bufnr = float.open(nil, {
+        title = "Copilot",
         rel = "rhs",
-        row = 2,
+        -- row = 2,
         width = 15,
-        height = 28,
+        height = 30,
         enter = false,
         wo = { number = false, relativenumber = false },
     })

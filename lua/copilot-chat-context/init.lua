@@ -26,6 +26,12 @@ M.open = function()
     if vim.api.nvim_buf_is_valid(state.menu.bufnr) then
         return -- noop when trying to double open
     end
+    -- if store loaded, let's just ui.open again + re-register actions + contexts...
+    if state.loaded then
+        store.remap()
+        ui.open(state)
+        return
+    end
 
     assistant.attach(state)
     contexts.attach(state)

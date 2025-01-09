@@ -21,16 +21,10 @@ end
 --- @param state ccc.State
 --- @return ccc.State
 M.quit = function(state)
-    for _, keymap in ipairs(state.actions) do
-        vim.keymap.del(keymap.mode, config.key(keymap.id))
-    end
-
-    for _, keymap in ipairs(state.contexts) do
-        vim.keymap.del("n", config.key(keymap.id))
-    end
-
+    store.unmap_all()
     vim.api.nvim_buf_delete(state.menu.bufnr, { force = true })
-    return store.default_state()
+    state.menu.bufnr = -1
+    return state
 end
 
 return M

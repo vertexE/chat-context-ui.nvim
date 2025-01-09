@@ -2,8 +2,8 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"open-patterns"|"open-task"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"
---- @alias ccc.ContextID "previous-ask"|"previous-explanation"|"selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"|"patterns"|"task"
+--- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"open-patterns"|"open-task"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"list-knowledge"|"toggle-knowledge"|"add-knowledge"|"preview-knowledge"
+--- @alias ccc.ContextID "previous-ask"|"previous-explanation"|"selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"|"patterns"|"task"|"knowledge"
 
 --- generate inline based off provided context, or replace what you've selected (requires selection context active)
 --- @type ccc.ActionID
@@ -61,6 +61,22 @@ M.open_patterns = "open-patterns"
 --- @type ccc.ActionID
 M.open_task = "open-task"
 
+--- list available knowledge
+--- @type ccc.ActionID
+M.list_knowledge = "list-knowledge"
+
+--- add knowledge base, dir path to markdown files
+--- @type ccc.ActionID
+M.add_knowledge = "add-knowledge"
+
+--- toggle knowledge
+--- @type ccc.ActionID
+M.toggle_knowledge = "toggle-knowledge"
+
+--- toggle knowledge
+--- @type ccc.ActionID
+M.preview_knowledge = "preview-knowledge"
+
 --- close the menu and delete all keymaps
 --- @type ccc.ActionID
 M.quit = "quit"
@@ -76,6 +92,10 @@ M.previous_explanation = "previous-explanation"
 --- all active code blocks saved to the selections list
 --- @type ccc.ContextID
 M.selections = "selections"
+
+--- all active knowledge
+--- @type ccc.ContextID
+M.knowledge = "knowledge"
 
 --- what's actively highlighted/selected
 --- @type ccc.ContextID
@@ -112,6 +132,8 @@ local default_keys = {
     [",r"] = M.review,
     [",a"] = M.ask,
     [",e"] = M.explain,
+    [",k"] = M.add_knowledge,
+    [",L"] = M.list_knowledge,
     [",s"] = M.add_selection,
     [",l"] = M.list_selections,
     [",z"] = M.clear_selections,
@@ -123,6 +145,7 @@ local default_keys = {
     --- Context Toggles
     [",,A"] = M.previous_ask,
     [",,E"] = M.previous_explanation,
+    [",,K"] = M.knowledge,
     [",,b"] = M.selections,
     [",,s"] = M.active_selection,
     [",,g"] = M.git_staged,
@@ -140,6 +163,8 @@ local default_icons = {
     [M.review] = "",
     [M.ask] = "",
     [M.explain] = "󱈅",
+    [M.add_knowledge] = "󰮆",
+    [M.list_knowledge] = "󰆼",
     [M.add_selection] = "󰩭",
     [M.list_selections] = "",
     [M.clear_selections] = "󱟃",
@@ -152,6 +177,7 @@ local default_icons = {
     [M.previous_ask] = " ",
     [M.previous_explanation] = " 󱈅",
     [M.selections] = "",
+    [M.knowledge] = "󰆼",
     [M.active_selection] = "󰒉",
     [M.git_staged] = "",
     [M.buffer] = "",
@@ -202,6 +228,8 @@ local hidden_actions = {
     [M.toggle_selection] = "<enter>",
     [M.next_selection] = "<tab>",
     [M.previous_selection] = "<s-tab>",
+    [M.toggle_knowledge] = "<enter>",
+    [M.preview_knowledge] = "<tab>",
 }
 
 local hidden = function(id)

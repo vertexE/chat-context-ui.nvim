@@ -7,8 +7,12 @@ local git = require("copilot-chat-context.external.git")
 local ui = require("copilot-chat-context.ui")
 local config = require("copilot-chat-context.config")
 
+--- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"|"doc_task"|"doc_patterns"|"knowledge_open"|"knowledge_redraw"
+
 --- @class ccc.State
 --- @field menu ccc.Menu
+--- @field loaded boolean if PersistedState has been loaded in
+--- @field knowledge ccc.KnowledgeBase
 --- @field blocks ccc.Blocks
 --- @field url string
 --- @field patterns ccc.Document
@@ -17,6 +21,13 @@ local config = require("copilot-chat-context.config")
 --- @field contexts table<ccc.Context>
 
 --- @class ccc.Menu
+--- @field open boolean
+--- @field bufnr integer
+
+--- @class ccc.KnowledgeBase
+--- @field preview integer which file that should be previewed
+--- @field list table<ccc.Knowledge>
+--- @field dir string
 --- @field open boolean
 --- @field bufnr integer
 
@@ -36,14 +47,14 @@ local config = require("copilot-chat-context.config")
 --- @field mode "n"|"v"|"x"|table
 --- @field hidden boolean
 --- @field apply fun(state: ccc.State): ccc.State
---- @field ui "menu"|"blocks_open"|"blocks_redraw"|"doc_task"|"doc_patterns"
+--- @field ui ccc.uiContext
 
 --- @class ccc.Context
 --- @field id ccc.ContextID
 --- @field active boolean
 --- @field getter fun(state: ccc.State): string
 --- @field meta ?fun(state: ccc.State): table<string,string>
---- @field ui "menu"|"blocks_open"|"blocks_redraw"|"doc_task"|"doc_patterns"
+--- @field ui ccc.uiContext
 
 -- TODO: mv to config.lua
 local TASK_FILE_NAME = "_task_context.md"
@@ -58,6 +69,14 @@ M.default_state = function()
             bufnr = -1,
         },
         url = "",
+        loaded = false,
+        knowledge = {
+            list = {},
+            dir = "",
+            open = false,
+            bufnr = -1,
+            preview = 0, -- starts out as 0 (no files to preview)
+        },
         blocks = {
             pos = 1,
             list = {},
@@ -81,11 +100,13 @@ end
 local state = M.default_state()
 
 --- @class ccc.RegisterOpts
---- @field bufnr integer|nil
+--- @field bufnr ?integer|nil
+--- @field remap_only ?boolean whether this action is new
 
 --- @type ccc.RegisterOpts
 local register_defaults = {
     bufnr = nil,
+    remap_only = false,
 }
 
 --- @return ccc.State
@@ -97,8 +118,14 @@ end
 --- @param opts ?ccc.RegisterOpts
 --- @return integer index of the registered context
 M.register_context = function(context, opts)
-    table.insert(state.contexts, context)
-    opts = opts or register_defaults
+    if opts then
+        opts.remap_only = opts.remap_only ~= nil and opts.remap_only or register_defaults.remap_only
+    else
+        opts = opts or register_defaults
+    end
+    if not opts.remap_only then
+        table.insert(state.contexts, context)
+    end
     vim.keymap.set("n", config.key(context.id), function()
         for _, registered in ipairs(state.contexts) do
             if registered.id == context.id then
@@ -115,8 +142,14 @@ end
 --- @param opts ?ccc.RegisterOpts
 --- @return integer index of the registered action
 M.register_action = function(action, opts)
-    table.insert(state.actions, action)
-    opts = opts or register_defaults
+    if opts then
+        opts.remap_only = opts.remap_only ~= nil and opts.remap_only or register_defaults.remap_only
+    else
+        opts = opts or register_defaults
+    end
+    if not opts.remap_only then
+        table.insert(state.actions, action)
+    end
     vim.keymap.set(action.mode, config.key(action.id), function()
         if #action.notification > 0 then
             notify.add(action.notification, "INFO", { timeout = 1500, hg = "Comment" })
@@ -144,11 +177,37 @@ M.deregister_action = function(id)
     table.remove(state.actions, pos)
 end
 
+--- used when re-opening the menu
+M.remap = function()
+    for _, action in ipairs(state.actions) do
+        M.register_action(action, { remap_only = true })
+    end
+    for _, context in ipairs(state.contexts) do
+        M.register_context(context, { remap_only = true })
+    end
+end
+
+--- used when closing the menu
+M.unmap_all = function()
+    for _, keymap in ipairs(state.actions) do
+        vim.keymap.del(keymap.mode, config.key(keymap.id))
+    end
+    for _, keymap in ipairs(state.contexts) do
+        vim.keymap.del("n", config.key(keymap.id))
+    end
+end
+
+--- @return boolean
+M.loaded = function()
+    return state.loaded
+end
+
 --- @class ccc.PersistedState
 --- @field blocks table<ccc.Block>
 --- @field block_pos integer
 --- @field url string
 --- @field contexts table<string, boolean>
+--- @field knowledge_dir string
 
 --- called whenever a state change occurs, with a 500ms delay
 --- to ensure we don't slow down UX and updates to the UI.
@@ -164,6 +223,7 @@ M.persist = function()
         block_pos = state.blocks.pos,
         url = state.url,
         contexts = contexts,
+        knowledge_dir = state.knowledge.dir,
     }
 
     local raw = vim.fn.json_encode(persisted)
@@ -192,11 +252,13 @@ M.load = function()
         state.blocks.list = persisted.blocks
         state.blocks.pos = persisted.block_pos
         state.url = persisted.url
+        state.knowledge.dir = persisted.knowledge_dir
         for _, context in ipairs(state.contexts) do
             if persisted.contexts[context.id] ~= nil then
                 context.active = persisted.contexts[context.id]
             end
         end
+        state.loaded = true
     end
 end
 

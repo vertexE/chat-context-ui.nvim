@@ -115,6 +115,7 @@ M.list = function(state)
 
     if #state.knowledge.list == 0 then
         notify.add("no knowledge files found", "INFO", { timeout = 1500, hg = "Comment" })
+        return state
     end
     state.knowledge.bufnr = vim.api.nvim_create_buf(true, false)
     store.register_action({

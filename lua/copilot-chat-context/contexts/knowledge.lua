@@ -63,7 +63,10 @@ end
 --- @param state ccc.State
 --- @return ccc.State
 M.setup = function(state)
-    state = load_files(state)
+    store.register_after_load({
+        id = "knowledge",
+        load = load_files,
+    })
     store.register_action({
         id = config.list_knowledge,
         notification = "",

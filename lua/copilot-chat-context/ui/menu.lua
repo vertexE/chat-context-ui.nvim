@@ -54,7 +54,7 @@ M.open = function(state)
         rel = "rhs",
         -- row = 2,
         width = 15,
-        height = 30,
+        height = 26,
         enter = false,
         wo = { number = false, relativenumber = false },
     })

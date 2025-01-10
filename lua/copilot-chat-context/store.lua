@@ -7,7 +7,7 @@ local git = require("copilot-chat-context.external.git")
 local ui = require("copilot-chat-context.ui")
 local config = require("copilot-chat-context.config")
 
---- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"|"doc_task"|"doc_patterns"|"knowledge_open"|"knowledge_redraw"
+--- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"|"knowledge_open"|"knowledge_redraw"
 
 --- @class ccc.State
 --- @field menu ccc.Menu
@@ -15,10 +15,9 @@ local config = require("copilot-chat-context.config")
 --- @field knowledge ccc.KnowledgeBase
 --- @field blocks ccc.Blocks
 --- @field url string
---- @field patterns ccc.Document
---- @field task ccc.Document
 --- @field actions table<ccc.Action>
 --- @field contexts table<ccc.Context>
+--- @field afterLoad table<ccc.ContextLoad>
 
 --- @class ccc.Menu
 --- @field open boolean
@@ -37,10 +36,6 @@ local config = require("copilot-chat-context.config")
 --- @field open boolean
 --- @field bufnr integer
 
---- @class ccc.Document
---- @field bufnr integer
---- @field file string
-
 --- @class ccc.Action
 --- @field id ccc.ActionID
 --- @field notification string
@@ -56,9 +51,11 @@ local config = require("copilot-chat-context.config")
 --- @field meta ?fun(state: ccc.State): table<string,string>
 --- @field ui ccc.uiContext
 
+--- @class ccc.ContextLoad
+--- @field id ccc.ContextID
+--- @field load fun(state: ccc.State): ccc.State after store load, load additional data for context
+
 -- TODO: mv to config.lua
-local TASK_FILE_NAME = "_task_context.md"
-local PATTERNS_FILE_NAME = "_patterns_context.md"
 local PERSIST_FILE_NAME = "_copilot-chat-context.json"
 
 --- @return ccc.State
@@ -83,16 +80,9 @@ M.default_state = function()
             open = false,
             bufnr = -1,
         },
-        patterns = {
-            file = PATTERNS_FILE_NAME,
-            bufnr = -1,
-        },
-        task = {
-            file = TASK_FILE_NAME,
-            bufnr = -1,
-        },
         actions = {},
         contexts = {},
+        afterLoad = {},
     }
 end
 
@@ -163,6 +153,11 @@ M.register_action = function(action, opts)
         end
     end, { desc = "ai: " .. action.id, buffer = opts.bufnr })
     return #state.actions
+end
+
+--- @param cl ccc.ContextLoad
+M.register_after_load = function(cl)
+    table.insert(state.afterLoad, cl)
 end
 
 --- @param id string
@@ -259,6 +254,10 @@ M.load = function()
             end
         end
         state.loaded = true
+    end
+
+    for _, cl in ipairs(state.afterLoad) do
+        state = cl.load(state)
     end
 end
 

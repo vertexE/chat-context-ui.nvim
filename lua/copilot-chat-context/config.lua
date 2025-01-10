@@ -2,8 +2,8 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"open-patterns"|"open-task"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"list-knowledge"|"toggle-knowledge"|"add-knowledge"|"preview-knowledge"
---- @alias ccc.ContextID "previous-ask"|"previous-explanation"|"selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"|"patterns"|"task"|"knowledge"
+--- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"list-knowledge"|"toggle-knowledge"|"add-knowledge"|"preview-knowledge"
+--- @alias ccc.ContextID "previous-ask"|"previous-explanation"|"selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"|"knowledge"
 
 --- generate inline based off provided context, or replace what you've selected (requires selection context active)
 --- @type ccc.ActionID
@@ -52,14 +52,6 @@ M.add_url = "add-url"
 --- remove the url
 --- @type ccc.ActionID
 M.open_url = "open-url"
-
---- open the coding patterns file
---- @type ccc.ActionID
-M.open_patterns = "open-patterns"
-
---- open the task file
---- @type ccc.ActionID
-M.open_task = "open-task"
 
 --- list available knowledge
 --- @type ccc.ActionID
@@ -117,14 +109,7 @@ M.file_tree = "file-tree"
 --- @type ccc.ContextID
 M.url = "url"
 
---- the patterns file
---- @type ccc.ContextID
-M.patterns = "patterns"
-
---- the task file
---- @type ccc.ContextID
-M.task = "task"
-
+--- default keymap 
 --- @type table<string, ccc.ActionID|ccc.ContextID>
 local default_keys = {
     --- Actions
@@ -139,8 +124,6 @@ local default_keys = {
     [",z"] = M.clear_selections,
     [",u"] = M.add_url,
     [",U"] = M.open_url,
-    [",p"] = M.open_patterns,
-    [",t"] = M.open_task,
     [",q"] = M.quit,
     --- Context Toggles
     [",,A"] = M.previous_ask,
@@ -152,8 +135,6 @@ local default_keys = {
     [",,B"] = M.buffer,
     [",,f"] = M.file_tree,
     [",,u"] = M.url,
-    [",,p"] = M.patterns,
-    [",,t"] = M.task,
 }
 
 --- @type table<ccc.ActionID|ccc.ContextID,string>
@@ -170,8 +151,6 @@ local default_icons = {
     [M.clear_selections] = "󱟃",
     [M.add_url] = "",
     [M.open_url] = "󰜏",
-    [M.open_patterns] = "",
-    [M.open_task] = "",
     [M.quit] = "",
     --- contexts
     [M.previous_ask] = " ",
@@ -183,8 +162,6 @@ local default_icons = {
     [M.buffer] = "",
     [M.file_tree] = "",
     [M.url] = "",
-    [M.patterns] = "",
-    [M.task] = "",
 }
 
 --- @type table<ccc.ActionID|ccc.ContextID, string>

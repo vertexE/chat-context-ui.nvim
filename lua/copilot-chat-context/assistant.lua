@@ -150,7 +150,7 @@ M.ask = function(state)
             end,
             callback = function(response, _)
                 qr_history = "<previous-question>"
-                    .. input
+                    .. vim.fn.join(input, "\n")
                     .. "</previous-question><previous-answer>"
                     .. response
                     .. "</previous-answer>"

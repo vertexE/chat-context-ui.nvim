@@ -123,6 +123,9 @@ end
 --- @type string represents the last response from M.ask
 local qr_history = ""
 
+--- @type integer|nil previous ask-question response buffer.
+local qr_bufnr = nil
+
 --- respond to a question based off of the available context
 --- @param state ccc.State
 --- @return ccc.State
@@ -150,7 +153,8 @@ M.ask = function(state)
                     .. "</previous-question><previous-answer>"
                     .. response
                     .. "</previous-answer>"
-                float.open(response, {
+                qr_bufnr = float.open(response, {
+                    bufnr = qr_bufnr,
                     enter = false,
                     rel = "lhs",
                     row = 1000, -- ensure it pops up on the bottom

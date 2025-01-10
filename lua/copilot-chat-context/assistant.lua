@@ -3,6 +3,7 @@ local M = {}
 local buffer = require("copilot-chat-context.buffer")
 local store = require("copilot-chat-context.store")
 local float = require("copilot-chat-context.ui.float")
+local textarea = require("copilot-chat-context.ui.textarea")
 local split = require("copilot-chat-context.ui.split")
 local loader = require("copilot-chat-context.ui.loader")
 
@@ -130,7 +131,7 @@ local qr_bufnr = nil
 --- @param state ccc.State
 --- @return ccc.State
 M.ask = function(state)
-    vim.ui.input({ prompt = "  Ask" }, function(input)
+    textarea.open({ prompt = "  Ask" }, function(input)
         if input == nil or #input == 0 then
             return
         end
@@ -142,7 +143,7 @@ M.ask = function(state)
 - if there is a previous question, then this question builds on that one
 </rules>
         ]]
-        chat.client().ask(pre .. "<question>" .. input .. "</question>\n" .. knowledge, {
+        chat.client().ask(pre .. "<question>" .. vim.fn.join(input, "\n") .. "</question>\n" .. knowledge, {
             headless = true,
             selection = function(source)
                 return include_buffer and chat.selection().buffer(source) or nil
@@ -218,12 +219,12 @@ M.generate = function(state)
         local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
         _start, _end = row, row
     end
-    vim.ui.input({ prompt = "  Generate" }, function(input)
+    textarea.open({ prompt = "  Generate" }, function(input)
         if input == nil or #input == 0 then
             return
         end
         local ns_id = loader.create(_start, _end, should_replace)
-        local prompt_cmd = CMD_PREFIX .. input .. CMD_POSTFIX
+        local prompt_cmd = CMD_PREFIX .. vim.fn.join(input, "\n") .. CMD_POSTFIX
         chat.client().ask(prompt_header .. prompt_cmd, {
             headless = true,
             selection = function(source)

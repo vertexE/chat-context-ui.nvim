@@ -1,5 +1,6 @@
 local M = {}
 
+local textarea = require("copilot-chat-context.ui.textarea")
 local store = require("copilot-chat-context.store")
 local notify = require("copilot-chat-context.external.notify")
 local config = require("copilot-chat-context.config")
@@ -62,12 +63,16 @@ M.replace = function(state)
     if #state.url > 0 then
         notify.add("replacing " .. state.url, "INFO", { timeout = 3500, hg = "Comment" })
     end
-    vim.ui.input({ prompt = "url" }, function(input)
+    textarea.open({ prompt = "url", height = 3 }, function(input)
         if input == nil or #input == 0 then
             return
         end
 
-        state.url = input
+        if #input > 1 then
+            notify.add("only using the 1st line", "WARN", { timeout = 2500, hg = "DiagnosticWarn" })
+        end
+
+        state.url = input[1]
     end)
     return state
 end

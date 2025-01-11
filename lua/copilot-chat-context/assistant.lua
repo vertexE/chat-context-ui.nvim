@@ -155,7 +155,7 @@ M.ask = function(state)
                     .. response
                     .. "</previous-answer>"
                 qr_bufnr = float.open(response, {
-                    bufnr = qr_bufnr,
+                    bufnr = (qr_bufnr and vim.api.nvim_buf_is_valid(qr_bufnr)) and qr_bufnr or nil,
                     enter = false,
                     rel = "lhs",
                     row = 1000, -- ensure it pops up on the bottom

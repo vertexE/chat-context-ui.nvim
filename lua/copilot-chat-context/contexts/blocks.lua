@@ -147,6 +147,7 @@ end
 --- @param state ccc.State
 M.clear = function(state)
     state.blocks.list = {}
+    state.blocks.pos = 1
     return state
 end
 

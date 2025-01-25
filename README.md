@@ -5,11 +5,7 @@ Improves UX of the `CopilotChat.nvim` plugin.
 - management of contexts (markdown files, selections, urls, filetree, saved code blocks, etc)
 
 > [!caution]
-> plugin still in a "draft" state.
-
-> [!caution]
-> currently explain and review do not work until this merges https://github.com/CopilotC-Nvim/CopilotChat.nvim/pull/704
-
+> plugin still in a "draft" state, expect some bugs! Please report if you find any.
 
 ## Install
 

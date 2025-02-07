@@ -25,6 +25,14 @@ M.attach = function(state)
         apply = M.generate,
     })
     store.register_action({
+        id = config.build,
+        notification = "",
+        mode = { "n" },
+        ui = "menu",
+        hidden = false,
+        apply = M.build,
+    })
+    store.register_action({
         id = config.review,
         notification = "reviewing buffer",
         mode = "n",
@@ -187,6 +195,56 @@ M.review = function(state)
     chat.client().ask("/Review", {
         headless = true,
     })
+    return state
+end
+
+--- @param state ccc.State
+--- @return ccc.State
+M.build = function(state)
+    local bufnr = vim.api.nvim_get_current_buf()
+    local knowledge, include_buffer = contexts(state)
+    local filetype = vim.bo[bufnr].filetype
+    local _start, _end = buffer.active_selection()
+    local prompt_header = string.format(
+        [[
+<rules>
+- you must always respond in code.
+- if you want to include an explanation, you MUST use comments.
+- use the data in the <context> tags to inform your decisions
+- you will build the structure of the code based off of the outline
+- keywords in outline is as follows
+```outline
+{
+    "fn": "function block",
+    "if": "if block",
+    "end": "end of scope"
+}
+```
+- build the code from the outline to match the programming language %s
+</rules>
+    ]],
+        filetype
+    )
+    prompt_header = prompt_header .. knowledge
+    textarea.open({ prompt = "  Build" }, function(input)
+        if input == nil or #input == 0 then
+            return
+        end
+        local ns_id = loader.create(_start, _end, false)
+        local prompt_cmd = "<outline>" .. vim.fn.join(input, "\n") .. "</outline>"
+        chat.client().ask(prompt_header .. prompt_cmd, {
+            headless = true,
+            selection = function(source)
+                return include_buffer and chat.selection().buffer(source) or nil
+            end,
+            callback = function(response, _)
+                local lines = vim.split(response, "\n")
+                lines = vim.list_slice(lines, 2, #lines - 1)
+                loader.clear(ns_id)
+                vim.api.nvim_buf_set_lines(0, _start, _start, false, lines)
+            end,
+        })
+    end)
     return state
 end
 

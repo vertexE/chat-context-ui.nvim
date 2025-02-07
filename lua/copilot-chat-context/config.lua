@@ -2,12 +2,16 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"list-knowledge"|"toggle-knowledge"|"add-knowledge"|"preview-knowledge"
+--- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"list-knowledge"|"toggle-knowledge"|"add-knowledge"|"preview-knowledge"|"build"
 --- @alias ccc.ContextID "previous-ask"|"previous-explanation"|"selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"|"knowledge"
 
 --- generate inline based off provided context, or replace what you've selected (requires selection context active)
 --- @type ccc.ActionID
 M.generate = "generate"
+
+--- generate inline based off provided context, or replace what you've selected (requires selection context active)
+--- @type ccc.ActionID
+M.build = "build"
 
 --- review the selected code (visual mode only)
 --- @type ccc.ActionID
@@ -109,11 +113,12 @@ M.file_tree = "file-tree"
 --- @type ccc.ContextID
 M.url = "url"
 
---- default keymap 
+--- default keymap
 --- @type table<string, ccc.ActionID|ccc.ContextID>
 local default_keys = {
     --- Actions
     [",g"] = M.generate,
+    [",b"] = M.build,
     [",r"] = M.review,
     [",a"] = M.ask,
     [",e"] = M.explain,
@@ -141,6 +146,7 @@ local default_keys = {
 local default_icons = {
     --- actions
     [M.generate] = "",
+    [M.build] = "󰠡",
     [M.review] = "",
     [M.ask] = "",
     [M.explain] = "󱈅",

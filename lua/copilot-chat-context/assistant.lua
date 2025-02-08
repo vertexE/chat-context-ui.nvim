@@ -209,6 +209,7 @@ M.build = function(state)
         [[
 <rules>
 - you must always respond in code.
+- you should only generate the code given the outline, no more 
 - if you want to include an explanation, you MUST use comments.
 - use the data in the <context> tags to inform your decisions
 - you will build the structure of the code based off of the outline

@@ -29,6 +29,43 @@ Improves UX of the `CopilotChat.nvim` plugin.
     },
 ```
 
+## Panel
+
+When the panel is open, you can do any of the following... 
+- **action**: interact with copilot to create a response
+- **context**: toggle additional info for copilot to use
+
+<img width="1506" alt="image" src="https://github.com/user-attachments/assets/3415227b-6c79-486c-93e6-a9ca4d2b8668" />
+
+The default keymaps is as follows
+
+| Action Keymaps | Description |
+|--------|-------------|
+| `,g`   | generate code   |
+| `,b`   | build a code block quickly      |
+| `,r`   | review the current buffer and add comments     |
+| `,a`   | ask a question         |
+| `,e`   | explain selected code     |
+| `,k`   | add knowledge |
+| `,L`   | list knowledge |
+| `,s`   | add selection |
+| `,l`   | list selections |
+| `,z`   | clear selections |
+| `,u`   | add url     |
+| `,U`   | open url    |
+| `,q`   | quit        |
+
+| Context Keymaps | Description |
+|--------|-------------|
+| `,,A`  | previously asked question and copilot's answer |
+| `,,E`  | previous explanation |
+| `,,K`  | all active knowledge files |
+| `,,b`  | all active code blocks |
+| `,,s`  | active selection |
+| `,,g`  | git staged  |
+| `,,B`  | current buffer  |
+| `,,f`  | file tree   |
+| `,,u`  | same as using `#url` from CopilotChat.nvim |
 
 ## Usage
 

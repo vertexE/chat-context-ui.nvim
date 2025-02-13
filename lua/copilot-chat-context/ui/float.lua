@@ -48,20 +48,20 @@ M.open = function(content, opts)
     opts.wo = opts.wo or default_opts.wo
     local bufnr = opts.bufnr or vim.api.nvim_create_buf(true, true)
     local win = vim.api.nvim_get_current_win()
-    local win_width = vim.api.nvim_win_get_width(win)
-    local win_height = vim.api.nvim_win_get_height(win)
+    local editor_width = vim.o.columns
+    local editor_height = vim.o.lines
 
     if opts.width <= 1 then
-        opts.width = math.floor(win_width * opts.width)
+        opts.width = math.floor(editor_width * opts.width)
     end
     if opts.height <= 1 then
-        opts.height = math.floor(win_height * opts.height)
+        opts.height = math.floor(editor_height * opts.height)
     end
     local row, col
 
     if opts.rel == "center" then
-        row = (win_height - opts.height) * 0.5 -- row is height
-        col = (win_width - opts.width) * 0.5 -- col is width
+        row = (editor_height - opts.height) * 0.5 -- row is height
+        col = (editor_width - opts.width) * 0.5 -- col is width
     elseif opts.rel == "cursor" then
         local pos = vim.fn.getpos(".")
         local win_size = vim.fn.winsaveview()

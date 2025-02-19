@@ -47,7 +47,6 @@ M.open = function(content, opts)
     opts.bo = opts.bo or default_opts.bo
     opts.wo = opts.wo or default_opts.wo
     local bufnr = opts.bufnr or vim.api.nvim_create_buf(true, true)
-    local win = vim.api.nvim_get_current_win()
     local editor_width = vim.o.columns
     local editor_height = vim.o.lines
 
@@ -69,7 +68,7 @@ M.open = function(content, opts)
         col = pos[3]
     elseif opts.rel == "rhs" then
         row = 0
-        col = vim.api.nvim_win_get_width(0) -- 0 refers to the current window
+        col = editor_width
     elseif opts.rel == "lhs" then
         row = 0
         col = 0

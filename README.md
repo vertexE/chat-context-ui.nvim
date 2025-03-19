@@ -5,7 +5,8 @@ Improves UX of the `CopilotChat.nvim` plugin.
 - management of contexts (markdown files, selections, urls, filetree, saved code blocks, etc)
 
 > [!caution]
-> plugin still in a "draft" state, expect some bugs! Please report if you find any.
+> plugin still in a "draft" state and not ready for use, expect bugs and no documentation!
+> I will continue to flush out the design and usage.
 
 ## Install
 
@@ -29,13 +30,15 @@ Improves UX of the `CopilotChat.nvim` plugin.
     },
 ```
 
-## Panel
+## Demo
 
-When the panel is open, you can do any of the following... 
+With the assistant panel, you can do any of the following... 
 - **action**: interact with copilot to create a response
 - **context**: toggle additional info for copilot to use
 
-<img width="1506" alt="image" src="https://github.com/user-attachments/assets/3415227b-6c79-486c-93e6-a9ca4d2b8668" />
+https://github.com/user-attachments/assets/5722efc4-31b0-4e21-abc7-08810a79d296
+
+## Usage
 
 The default keymaps is as follows
 
@@ -66,18 +69,6 @@ The default keymaps is as follows
 | `,,f`  | file tree   |
 | `,,u`  | same as using `#url` from CopilotChat.nvim, uses the url stored from the add-url command |
 
-## Usage
-
-<details>
-<summary>generate</summary>
-<!-- generate:start -->
-quickly generate code inline
-
-https://github.com/user-attachments/assets/5722efc4-31b0-4e21-abc7-08810a79d296
-
-<!-- generate:end -->
-</details>
-
 
 ## Next Steps
 
@@ -85,4 +76,3 @@ https://github.com/user-attachments/assets/5722efc4-31b0-4e21-abc7-08810a79d296
 - [ ] inline prompting using virtual text?
 - [ ] possibly add diffs to better compare proposed changes?
 - [ ] build repo context map to allow copilot to fetch more info (such as function definitions, class declarations, etc)
-

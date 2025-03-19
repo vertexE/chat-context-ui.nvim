@@ -72,8 +72,9 @@ The default keymaps is as follows
 <summary>generate</summary>
 <!-- generate:start -->
 quickly generate code inline
-    
-https://github.com/user-attachments/assets/a3bf5181-d21e-4bda-b960-1874a86d71fc
+
+https://github.com/user-attachments/assets/5722efc4-31b0-4e21-abc7-08810a79d296
+
 <!-- generate:end -->
 </details>
 

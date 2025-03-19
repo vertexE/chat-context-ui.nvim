@@ -42,15 +42,14 @@ The default keymaps is as follows
 | Action Keymaps | Description |
 |--------|-------------|
 | `,g`   | generate code   |
-| `,b`   | build a code block quickly      |
 | `,r`   | review the current buffer and add comments     |
 | `,a`   | ask a question         |
 | `,e`   | explain selected code     |
-| `,k`   | add knowledge |
-| `,L`   | list knowledge |
 | `,s`   | add selection |
 | `,l`   | list selections |
 | `,z`   | clear selections |
+| `,k`   | add knowledge |
+| `,L`   | list knowledge |
 | `,u`   | add url     |
 | `,U`   | open url    |
 | `,q`   | quit        |
@@ -63,37 +62,26 @@ The default keymaps is as follows
 | `,,b`  | all active code blocks |
 | `,,s`  | active selection |
 | `,,g`  | git staged  |
-| `,,B`  | current buffer  |
+| `,,B`  | current buffer (will likely be phased out...) |
 | `,,f`  | file tree   |
-| `,,u`  | same as using `#url` from CopilotChat.nvim |
+| `,,u`  | same as using `#url` from CopilotChat.nvim, uses the url stored from the add-url command |
 
 ## Usage
 
 <details>
 <summary>generate</summary>
 <!-- generate:start -->
-generate code inline
+quickly generate code inline
     
 https://github.com/user-attachments/assets/a3bf5181-d21e-4bda-b960-1874a86d71fc
 <!-- generate:end -->
 </details>
 
-<details>
-<summary>explain</summary>
-<!-- explain:start -->
-explain selected code / context
-    
-https://github.com/user-attachments/assets/5b0a34a9-820c-4b20-b812-a3cdc4d15836
-<!-- explain:end -->
-</details>
 
-<details>
-<summary>ask</summary>
-<!-- ask:start -->
-ask a question
-    
-https://github.com/user-attachments/assets/7759016d-8042-43e1-8341-6b023da7407c
-<!-- ask:end -->
-</details>
+## Next Steps
 
+- [ ] if the panel is opened in a different tab, it should jump to the active tab if we try to open it again
+- [ ] inline prompting using virtual text?
+- [ ] possibly add diffs to better compare proposed changes?
+- [ ] build repo context map to allow copilot to fetch more info (such as function definitions, class declarations, etc)
 

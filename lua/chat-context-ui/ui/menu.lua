@@ -50,7 +50,7 @@ end
 --- @param state ccc.State
 M.open = function(state)
     state.menu.bufnr = float.open(nil, {
-        title = "Copilot",
+        title = "AI Chat",
         rel = "rhs",
         row = 1,
         width = 15,
@@ -71,7 +71,7 @@ M.move = function(state)
 
     float.open(nil, {
         bufnr = state.menu.bufnr,
-        title = "Copilot",
+        title = "AI Chat",
         rel = "rhs",
         row = 1,
         width = 15,

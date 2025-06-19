@@ -9,7 +9,7 @@ M.draw = function(state)
         return
     end
 
-    local ns = vim.api.nvim_create_namespace("user_ai_virtual_text")
+    local ns = vim.api.nvim_create_namespace("copilot-chat-context.virtual_text")
     vim.api.nvim_buf_clear_namespace(state.menu.bufnr, ns, 0, -1)
 
     local lines = {}
@@ -54,12 +54,31 @@ M.open = function(state)
         rel = "rhs",
         row = 1,
         width = 15,
-        height = 26,
+        height = 20,
         enter = false,
         wo = { number = false, relativenumber = false },
     })
     M.draw(state)
     state.menu.open = true
+end
+
+--- moves the opened menu to the active tab
+--- @param state ccc.State
+M.move = function(state)
+    if not vim.api.nvim_buf_is_valid(state.menu.bufnr) then
+        return
+    end
+
+    float.open(nil, {
+        bufnr = state.menu.bufnr,
+        title = "Copilot",
+        rel = "rhs",
+        row = 1,
+        width = 15,
+        height = 20,
+        enter = false,
+        wo = { number = false, relativenumber = false },
+    })
 end
 
 return M

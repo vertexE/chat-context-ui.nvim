@@ -33,7 +33,7 @@ Improves UX of the `CopilotChat.nvim` plugin.
 ## Demo
 
 With the assistant panel, you can do any of the following... 
-- **action**: interact with copilot to create a response
+- **action**: interact with copilot to create a response or manage context state
 - **context**: toggle additional info for copilot to use
 
 https://github.com/user-attachments/assets/5722efc4-31b0-4e21-abc7-08810a79d296
@@ -45,23 +45,17 @@ The default keymaps is as follows
 | Action Keymaps | Description |
 |--------|-------------|
 | `,g`   | generate code   |
-| `,r`   | review the current buffer and add comments     |
 | `,a`   | ask a question         |
-| `,e`   | explain selected code     |
+| `,A`   | show previous answer to question         |
 | `,s`   | add selection |
 | `,l`   | list selections |
 | `,z`   | clear selections |
-| `,k`   | add knowledge |
-| `,L`   | list knowledge |
 | `,u`   | add url     |
 | `,U`   | open url    |
 | `,q`   | quit        |
 
 | Context Keymaps | Description |
 |--------|-------------|
-| `,,A`  | previously asked question and copilot's answer |
-| `,,E`  | previous explanation |
-| `,,K`  | all active knowledge files |
 | `,,b`  | all active code blocks |
 | `,,s`  | active selection |
 | `,,g`  | git staged  |

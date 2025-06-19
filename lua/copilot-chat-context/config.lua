@@ -2,28 +2,20 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"review"|"ask"|"explain"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"list-knowledge"|"toggle-knowledge"|"add-knowledge"|"preview-knowledge"|"build"
---- @alias ccc.ContextID "previous-ask"|"previous-explanation"|"selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"|"knowledge"
+--- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"
+--- @alias ccc.ContextID "selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"
 
 --- generate inline based off provided context, or replace what you've selected (requires selection context active)
 --- @type ccc.ActionID
 M.generate = "generate"
 
---- generate inline based off provided context, or replace what you've selected (requires selection context active)
---- @type ccc.ActionID
-M.build = "build"
-
---- review the selected code (visual mode only)
---- @type ccc.ActionID
-M.review = "review"
-
 --- ask a general question
 --- @type ccc.ActionID
 M.ask = "ask"
 
---- explain the highlighted code (visual mode only)
+--- show the previously asked question
 --- @type ccc.ActionID
-M.explain = "explain"
+M.show_previous_answer = "show-previous-answer"
 
 --- add the selected code block to the list (MAX 10)
 --- @type ccc.ActionID
@@ -57,41 +49,13 @@ M.add_url = "add-url"
 --- @type ccc.ActionID
 M.open_url = "open-url"
 
---- list available knowledge
---- @type ccc.ActionID
-M.list_knowledge = "list-knowledge"
-
---- add knowledge base, dir path to markdown files
---- @type ccc.ActionID
-M.add_knowledge = "add-knowledge"
-
---- toggle knowledge
---- @type ccc.ActionID
-M.toggle_knowledge = "toggle-knowledge"
-
---- toggle knowledge
---- @type ccc.ActionID
-M.preview_knowledge = "preview-knowledge"
-
 --- close the menu and delete all keymaps
 --- @type ccc.ActionID
 M.quit = "quit"
 
---- previous response to the "ask" action
---- @type ccc.ContextID
-M.previous_ask = "previous-ask"
-
---- previous response to the "explain" action
---- @type ccc.ContextID
-M.previous_explanation = "previous-explanation"
-
 --- all active code blocks saved to the selections list
 --- @type ccc.ContextID
 M.selections = "selections"
-
---- all active knowledge
---- @type ccc.ContextID
-M.knowledge = "knowledge"
 
 --- what's actively highlighted/selected
 --- @type ccc.ContextID
@@ -118,12 +82,8 @@ M.url = "url"
 local default_keys = {
     --- Actions
     [",g"] = M.generate,
-    [",b"] = M.build,
-    [",r"] = M.review,
     [",a"] = M.ask,
-    [",e"] = M.explain,
-    [",k"] = M.add_knowledge,
-    [",L"] = M.list_knowledge,
+    [",A"] = M.show_previous_answer,
     [",s"] = M.add_selection,
     [",l"] = M.list_selections,
     [",z"] = M.clear_selections,
@@ -131,9 +91,6 @@ local default_keys = {
     [",U"] = M.open_url,
     [",q"] = M.quit,
     --- Context Toggles
-    [",,A"] = M.previous_ask,
-    [",,E"] = M.previous_explanation,
-    [",,K"] = M.knowledge,
     [",,b"] = M.selections,
     [",,s"] = M.active_selection,
     [",,g"] = M.git_staged,
@@ -146,12 +103,8 @@ local default_keys = {
 local default_icons = {
     --- actions
     [M.generate] = "",
-    [M.build] = "󰠡",
-    [M.review] = "",
     [M.ask] = "",
-    [M.explain] = "󱈅",
-    [M.add_knowledge] = "󰮆",
-    [M.list_knowledge] = "󰆼",
+    [M.show_previous_answer] = " ",
     [M.add_selection] = "󰩭",
     [M.list_selections] = "",
     [M.clear_selections] = "󱟃",
@@ -159,15 +112,13 @@ local default_icons = {
     [M.open_url] = "󰜏",
     [M.quit] = "",
     --- contexts
-    [M.previous_ask] = " ",
-    [M.previous_explanation] = " 󱈅",
     [M.selections] = "",
-    [M.knowledge] = "󰆼",
     [M.active_selection] = "󰒉",
     [M.git_staged] = "",
     [M.buffer] = "",
     [M.file_tree] = "",
     [M.url] = "",
+    -- TODO: debugger
 }
 
 --- @type table<ccc.ActionID|ccc.ContextID, string>
@@ -176,6 +127,7 @@ local key_lookup = {}
 local labels = default_icons
 
 --- @class ccc.PluginOpts
+--- @field copy_on_prompt ?boolean whether to copy the prompt to clipboard after asking
 --- @field keymaps ?table<string, ccc.ActionID|ccc.ContextID> override the default keys
 --- @field leader ?string override the leading key, e.g. generate defaults to ",g" overriding this to <space> makes it "<space>g>"
 --- @field labels ?table<ccc.ActionID|ccc.ContextID,string> override the default labels for actions and context toggles
@@ -184,6 +136,8 @@ local labels = default_icons
 -- - add vert-split as an option for RHS toolbar + float/split sizing
 -- - add ability to disable actions / contexts entirely
 -- - try adding ability to hide certain options? Such as hiding ask / explain
+-- - always on that tries to suggest changes
+-- - automate indexing of the codebase?
 
 --- where we store all context between nvim sessions
 M.CACHE = "~/.cache/nvim/copilot-chat-context"
@@ -211,8 +165,6 @@ local hidden_actions = {
     [M.toggle_selection] = "<enter>",
     [M.next_selection] = "<tab>",
     [M.previous_selection] = "<s-tab>",
-    [M.toggle_knowledge] = "<enter>",
-    [M.preview_knowledge] = "<tab>",
 }
 
 local hidden = function(id)

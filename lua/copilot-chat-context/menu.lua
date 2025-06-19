@@ -23,6 +23,7 @@ end
 M.quit = function(state)
     store.unmap_all()
     vim.api.nvim_buf_delete(state.menu.bufnr, { force = true })
+    vim.api.nvim_clear_autocmds({ group = "copilot-chat-context.tab.move" })
     state.menu.bufnr = -1
     return state
 end

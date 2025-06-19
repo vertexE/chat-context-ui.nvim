@@ -11,4 +11,16 @@ M.active_selection = function()
     return start_line, end_line
 end
 
+--- checks if the buffer is open in the current tab
+--- @param bufnr integer
+M.is_open_in_current_tab = function(bufnr)
+    -- Get all windows in the current tabpage
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        if vim.api.nvim_win_get_buf(win) == bufnr then
+            return true
+        end
+    end
+    return false
+end
+
 return M

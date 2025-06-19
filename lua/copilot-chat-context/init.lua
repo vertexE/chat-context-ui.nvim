@@ -17,7 +17,17 @@ M.setup = function(opts)
     notify.setup()
     chat.setup()
     config.setup(opts or {})
-    store.setup()
+    store.setup(opts or {})
+end
+
+--- @param state ccc.State
+local setup_autocmds = function(state)
+    vim.api.nvim_create_autocmd({ "TabEnter" }, {
+        group = vim.api.nvim_create_augroup("copilot-chat-context.tab.move", { clear = true }),
+        callback = function()
+            ui.move(state)
+        end,
+    })
 end
 
 --- opens the main UI context management window as a floating window on the RHS
@@ -26,6 +36,8 @@ M.open = function()
     if vim.api.nvim_buf_is_valid(state.menu.bufnr) then
         return -- noop when trying to double open
     end
+
+    setup_autocmds(state)
     -- if store loaded, let's just ui.open again + re-register actions + contexts...
     if state.loaded then
         store.remap()

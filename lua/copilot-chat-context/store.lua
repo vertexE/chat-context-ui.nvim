@@ -7,26 +7,22 @@ local git = require("copilot-chat-context.external.git")
 local ui = require("copilot-chat-context.ui")
 local config = require("copilot-chat-context.config")
 
---- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"|"knowledge_open"|"knowledge_redraw"
+--- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"
 
 --- @class ccc.State
 --- @field menu ccc.Menu
 --- @field loaded boolean if PersistedState has been loaded in
---- @field knowledge ccc.KnowledgeBase
 --- @field blocks ccc.Blocks
 --- @field url string
 --- @field actions table<ccc.Action>
 --- @field contexts table<ccc.Context>
 --- @field afterLoad table<ccc.ContextLoad>
+--- @field opts ccc.RunOptions
+
+--- @class ccc.RunOptions
+--- @field copy boolean instead of calling copilot-chat, copy prompt to clipboard
 
 --- @class ccc.Menu
---- @field open boolean
---- @field bufnr integer
-
---- @class ccc.KnowledgeBase
---- @field preview integer which file that should be previewed
---- @field list table<ccc.Knowledge>
---- @field dir string
 --- @field open boolean
 --- @field bufnr integer
 
@@ -61,19 +57,15 @@ local PERSIST_FILE_NAME = "_copilot-chat-context.json"
 --- @return ccc.State
 M.default_state = function()
     return {
+        opts = {
+            copy = false,
+        },
         menu = {
             open = false,
             bufnr = -1,
         },
         url = "",
         loaded = false,
-        knowledge = {
-            list = {},
-            dir = "",
-            open = false,
-            bufnr = -1,
-            preview = 0, -- starts out as 0 (no files to preview)
-        },
         blocks = {
             pos = 1,
             list = {},
@@ -202,7 +194,6 @@ end
 --- @field block_pos integer
 --- @field url string
 --- @field contexts table<string, boolean>
---- @field knowledge_dir string
 
 --- called whenever a state change occurs, with a 500ms delay
 --- to ensure we don't slow down UX and updates to the UI.
@@ -218,7 +209,6 @@ M.persist = function()
         block_pos = state.blocks.pos,
         url = state.url,
         contexts = contexts,
-        knowledge_dir = state.knowledge.dir,
     }
 
     local raw = vim.fn.json_encode(persisted)
@@ -230,10 +220,16 @@ M.persist = function()
     end
 end
 
-M.setup = function()
+--- comment
+--- @param opts ccc.PluginOpts
+M.setup = function(opts)
     local dir = vim.fn.expand(config.CACHE)
     if vim.fn.isdirectory(dir) == 0 then
         vim.fn.mkdir(dir, "p")
+    end
+
+    if opts.copy ~= nil then
+        state.opts.copy = opts.copy
     end
 end
 
@@ -247,7 +243,6 @@ M.load = function()
         state.blocks.list = persisted.blocks
         state.blocks.pos = persisted.block_pos
         state.url = persisted.url
-        state.knowledge.dir = persisted.knowledge_dir
         for _, context in ipairs(state.contexts) do
             if persisted.contexts[context.id] ~= nil then
                 context.active = persisted.contexts[context.id]

@@ -10,6 +10,7 @@ local config = require("chat-context-ui.config")
 --- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"
 
 --- @class ccc.State
+--- @field requesting_bufnr integer
 --- @field menu ccc.Menu
 --- @field loaded boolean if PersistedState has been loaded in
 --- @field blocks ccc.Blocks
@@ -20,7 +21,7 @@ local config = require("chat-context-ui.config")
 --- @field opts ccc.RunOptions
 
 --- @class ccc.RunOptions
---- @field copy boolean instead of calling copilot-chat, copy prompt to clipboard
+--- @field copy_on_prompt boolean instead of calling copilot-chat, copy prompt to clipboard
 
 --- @class ccc.Menu
 --- @field open boolean
@@ -57,8 +58,9 @@ local PERSIST_FILE_NAME = "_chat-context-ui.json"
 --- @return ccc.State
 M.default_state = function()
     return {
+        requesting_bufnr = -1,
         opts = {
-            copy = false,
+            copy_on_prompt = false,
         },
         menu = {
             open = false,
@@ -228,8 +230,8 @@ M.setup = function(opts)
         vim.fn.mkdir(dir, "p")
     end
 
-    if opts.copy ~= nil then
-        state.opts.copy = opts.copy
+    if opts.copy_on_prompt ~= nil then
+        state.opts.copy_on_prompt = opts.copy_on_prompt
     end
 end
 

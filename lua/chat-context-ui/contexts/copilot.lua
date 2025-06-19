@@ -15,11 +15,11 @@ M.setup = function(state)
         end,
     })
     store.register_context({
-        id = config.buffer,
+        id = config.buffers,
         active = false,
         ui = "menu",
         getter = function(_)
-            return "" -- handled by selection
+            return "#buffers"
         end,
     })
     store.register_context({

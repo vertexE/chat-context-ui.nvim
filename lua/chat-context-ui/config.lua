@@ -3,7 +3,7 @@
 local M = {}
 
 --- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"
---- @alias ccc.ContextID "selections"|"active-selection"|"git-staged"|"buffer"|"file-tree"|"url"
+--- @alias ccc.ContextID "selections"|"active-selection"|"git-staged"|"buffers"|"file-tree"|"url"|"lsp"
 
 --- generate inline based off provided context, or replace what you've selected (requires selection context active)
 --- @type ccc.ActionID
@@ -55,6 +55,10 @@ M.quit = "quit"
 
 --- all active code blocks saved to the selections list
 --- @type ccc.ContextID
+M.lsp = "lsp"
+
+--- all active code blocks saved to the selections list
+--- @type ccc.ContextID
 M.selections = "selections"
 
 --- what's actively highlighted/selected
@@ -67,7 +71,7 @@ M.git_staged = "git-staged"
 
 --- the current open buffer
 --- @type ccc.ContextID
-M.buffer = "buffer"
+M.buffers = "buffers"
 
 --- the file tree
 --- @type ccc.ContextID
@@ -92,9 +96,10 @@ local default_keys = {
     [",q"] = M.quit,
     --- Context Toggles
     [",,b"] = M.selections,
+    [",,l"] = M.lsp,
     [",,s"] = M.active_selection,
     [",,g"] = M.git_staged,
-    [",,B"] = M.buffer,
+    [",,B"] = M.buffers,
     [",,f"] = M.file_tree,
     [",,u"] = M.url,
 }
@@ -115,9 +120,10 @@ local default_icons = {
     [M.selections] = "",
     [M.active_selection] = "󰒉",
     [M.git_staged] = "",
-    [M.buffer] = "",
+    [M.buffers] = "",
     [M.file_tree] = "",
     [M.url] = "",
+    [M.lsp] = "",
     -- TODO: debugger
 }
 

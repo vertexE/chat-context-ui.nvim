@@ -46,22 +46,17 @@ M.attach = function(state)
 end
 
 --- @param state ccc.State
---- @return string,boolean
+--- @return string
 local contexts = function(state)
     local prompt = "<context>"
-    local include_buffer = false
     for _, context in ipairs(state.contexts) do
-        if context.id == config.buffer then
-            include_buffer = true
-        else
-            local content = context.getter(state)
-            if content ~= nil and #content > 0 and context.active then
-                prompt = prompt .. "\n" .. content
-            end
+        local content = context.getter(state)
+        if content ~= nil and #content > 0 and context.active then
+            prompt = prompt .. "\n" .. content
         end
     end
     prompt = prompt .. "\n</context>"
-    return prompt, include_buffer
+    return prompt
 end
 
 --- @type string represents the last response+question from M.ask
@@ -98,11 +93,12 @@ end
 --- @param state ccc.State
 --- @return ccc.State
 M.ask = function(state)
+    state.requesting_bufnr = vim.api.nvim_get_current_buf()
     textarea.open({ prompt = "  Ask" }, function(input)
         if input == nil or #input == 0 then
             return
         end
-        local knowledge, include_buffer = contexts(state)
+        local knowledge = contexts(state)
         local pre = [[
 <rules>
 - answer the following question
@@ -113,9 +109,6 @@ M.ask = function(state)
         chat.client()
             .ask(pre .. "<question>" .. vim.fn.join(input, "\n") .. "</question>\n" .. knowledge .. qr_history, {
                 headless = true,
-                selection = function(source)
-                    return include_buffer and chat.selection().buffer(source) or nil
-                end,
                 callback = function(response, _)
                     qr_response = response
                     qr_history = "<previous-question>"
@@ -143,10 +136,12 @@ end
 --- @param state ccc.State
 --- @return ccc.State
 M.generate = function(state)
+    local requesting_bufnr = vim.api.nvim_get_current_buf()
+    state.requesting_bufnr = requesting_bufnr
     local status = vim.api.nvim_get_mode()
     local should_replace = status.mode == "v" or status.mode == "V" or status.mode == "^V"
     local sel_start, sel_end = buffer.active_selection()
-    local knowledge, include_buffer = contexts(state)
+    local knowledge = contexts(state)
     local prompt_header = string.format(
         [[
 <rules>
@@ -177,16 +172,13 @@ M.generate = function(state)
         local prompt_cmd = CMD_PREFIX .. vim.fn.join(input, "\n") .. CMD_POSTFIX
         chat.client().ask(prompt_header .. prompt_cmd, {
             headless = true,
-            selection = function(source)
-                return include_buffer and chat.selection().buffer(source) or nil
-            end,
             callback = function(response, _)
                 local lines = vim.split(text.select_content(response), "\n")
                 loader.clear(ns_id)
                 if should_replace then
-                    vim.api.nvim_buf_set_lines(0, _start - 1, _end, false, lines)
+                    vim.api.nvim_buf_set_lines(requesting_bufnr, _start - 1, _end, false, lines)
                 else
-                    vim.api.nvim_buf_set_lines(0, _start, _start, false, lines)
+                    vim.api.nvim_buf_set_lines(requesting_bufnr, _start, _start, false, lines)
                 end
             end,
         })

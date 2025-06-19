@@ -40,7 +40,7 @@ M.draw = function(state)
     end
 
     vim.api.nvim_buf_set_extmark(state.menu.bufnr, ns, 0, 0, {
-        virt_text = { { "Actions", "AIActionsHeader" } },
+        virt_text = { { "Agent", "AIActionsHeader" } },
         virt_lines = lines,
         virt_text_pos = "inline",
     })
@@ -50,7 +50,7 @@ end
 --- @param state ccc.State
 M.open = function(state)
     state.menu.bufnr = float.open(nil, {
-        title = "AI Chat",
+        title = "",
         rel = "rhs",
         row = 1,
         width = 15,
@@ -71,7 +71,7 @@ M.move = function(state)
 
     float.open(nil, {
         bufnr = state.menu.bufnr,
-        title = "AI Chat",
+        title = "",
         rel = "rhs",
         row = 1,
         width = 15,

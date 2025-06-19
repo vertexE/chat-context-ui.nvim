@@ -59,14 +59,16 @@ The default keymaps is as follows
 | `,,b`  | all active code blocks |
 | `,,s`  | active selection |
 | `,,g`  | git staged  |
-| `,,B`  | current buffer (will likely be phased out...) |
+| `,,B`  | all buffers |
 | `,,f`  | file tree   |
 | `,,u`  | same as using `#url` from CopilotChat.nvim, uses the url stored from the add-url command |
 
 
 ## Next Steps
 
-- [ ] if the panel is opened in a different tab, it should jump to the active tab if we try to open it again
 - [ ] inline prompting using virtual text?
-- [ ] possibly add diffs to better compare proposed changes?
+    - open hidden buf and hide cursor
+    - type out what you want?
+- [ ] possibly add diffs to better compare proposed changes? could make this an option you enable...
+- [ ] configuration options for keymaps, UI, etc
 - [ ] build repo context map to allow copilot to fetch more info (such as function definitions, class declarations, etc)

@@ -1,7 +1,7 @@
 local M = {}
 
-local store = require("copilot-chat-context.store")
-local config = require("copilot-chat-context.config")
+local store = require("chat-context-ui.store")
+local config = require("chat-context-ui.config")
 
 --- @param state ccc.State
 --- @return ccc.State

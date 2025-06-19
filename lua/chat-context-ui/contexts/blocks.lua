@@ -1,9 +1,9 @@
 local M = {}
 
-local buffer = require("copilot-chat-context.buffer")
-local store = require("copilot-chat-context.store")
-local notify = require("copilot-chat-context.external.notify")
-local config = require("copilot-chat-context.config")
+local buffer = require("chat-context-ui.buffer")
+local store = require("chat-context-ui.store")
+local notify = require("chat-context-ui.external.notify")
+local config = require("chat-context-ui.config")
 
 --- @class ccc.Block
 --- @field content string

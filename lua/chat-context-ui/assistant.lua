@@ -1,15 +1,15 @@
 local M = {}
 
-local buffer = require("copilot-chat-context.buffer")
-local store = require("copilot-chat-context.store")
-local float = require("copilot-chat-context.ui.float")
-local textarea = require("copilot-chat-context.ui.textarea")
-local split = require("copilot-chat-context.ui.split")
-local loader = require("copilot-chat-context.ui.loader")
-local text = require("copilot-chat-context.text")
+local buffer = require("chat-context-ui.buffer")
+local store = require("chat-context-ui.store")
+local float = require("chat-context-ui.ui.float")
+local textarea = require("chat-context-ui.ui.textarea")
+local split = require("chat-context-ui.ui.split")
+local loader = require("chat-context-ui.ui.loader")
+local text = require("chat-context-ui.text")
 
-local chat = require("copilot-chat-context.external.chat")
-local config = require("copilot-chat-context.config")
+local chat = require("chat-context-ui.external.chat")
+local config = require("chat-context-ui.config")
 
 local CMD_PREFIX = "<command>"
 local CMD_POSTFIX = "</command>"

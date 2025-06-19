@@ -1,7 +1,7 @@
 local M = {}
 
-local store = require("copilot-chat-context.store")
-local config = require("copilot-chat-context.config")
+local store = require("chat-context-ui.store")
+local config = require("chat-context-ui.config")
 
 --- @param state ccc.State
 --- @return ccc.State
@@ -23,7 +23,7 @@ end
 M.quit = function(state)
     store.unmap_all()
     vim.api.nvim_buf_delete(state.menu.bufnr, { force = true })
-    vim.api.nvim_clear_autocmds({ group = "copilot-chat-context.tab.move" })
+    vim.api.nvim_clear_autocmds({ group = "chat-context-ui.tab.move" })
     state.menu.bufnr = -1
     return state
 end

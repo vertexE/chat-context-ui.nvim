@@ -1,7 +1,7 @@
 local M = {}
 
-local float = require("copilot-chat-context.ui.float")
-local config = require("copilot-chat-context.config")
+local float = require("chat-context-ui.ui.float")
+local config = require("chat-context-ui.config")
 
 --- @param state ccc.State
 M.draw = function(state)
@@ -9,7 +9,7 @@ M.draw = function(state)
         return
     end
 
-    local ns = vim.api.nvim_create_namespace("copilot-chat-context.virtual_text")
+    local ns = vim.api.nvim_create_namespace("chat-context-ui.virtual_text")
     vim.api.nvim_buf_clear_namespace(state.menu.bufnr, ns, 0, -1)
 
     local lines = {}

@@ -1,4 +1,4 @@
-# copilot-chat-context.nvim
+# chat-context-ui.nvim
 
 Improves UX of the `CopilotChat.nvim` plugin.
 - predefined actions
@@ -14,13 +14,13 @@ Improves UX of the `CopilotChat.nvim` plugin.
 
 ```lua
     {
-        "josiahdenton/copilot-chat-context.nvim",
+        "josiahdenton/chat-context-ui.nvim",
         dependencies = {
             "CopilotC-Nvim/CopilotChat.nvim",
             "echasnovski/mini.nvim", -- optional, uses mini.notify and will fallback to vim.notify if not available
         },
         config = function()
-            local context = require("copilot-chat-context")
+            local context = require("chat-context-ui")
             context.setup()
             vim.keymap.set("n", "<leader>ai", function()
                 context.open()

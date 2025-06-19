@@ -1,6 +1,6 @@
 local M = {}
 
-local notify = require("copilot-chat-context.external.notify")
+local notify = require("chat-context-ui.external.notify")
 
 local _chat
 local _selection

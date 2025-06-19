@@ -1,7 +1,7 @@
 local M = {}
 
-local menu = require("copilot-chat-context.ui.menu")
-local blocks = require("copilot-chat-context.ui.blocks")
+local menu = require("chat-context-ui.ui.menu")
+local blocks = require("chat-context-ui.ui.blocks")
 
 --- @param state ccc.State
 --- @param ui ccc.uiContext

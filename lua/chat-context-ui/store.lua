@@ -1,11 +1,11 @@
 local M = {}
 
-local notify = require("copilot-chat-context.external.notify")
-local files = require("copilot-chat-context.external.files")
-local git = require("copilot-chat-context.external.git")
+local notify = require("chat-context-ui.external.notify")
+local files = require("chat-context-ui.external.files")
+local git = require("chat-context-ui.external.git")
 
-local ui = require("copilot-chat-context.ui")
-local config = require("copilot-chat-context.config")
+local ui = require("chat-context-ui.ui")
+local config = require("chat-context-ui.config")
 
 --- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"
 
@@ -52,7 +52,7 @@ local config = require("copilot-chat-context.config")
 --- @field load fun(state: ccc.State): ccc.State after store load, load additional data for context
 
 -- TODO: mv to config.lua
-local PERSIST_FILE_NAME = "_copilot-chat-context.json"
+local PERSIST_FILE_NAME = "_chat-context-ui.json"
 
 --- @return ccc.State
 M.default_state = function()

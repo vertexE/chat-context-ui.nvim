@@ -1,8 +1,8 @@
 local M = {}
 
-local buffer = require("copilot-chat-context.buffer")
-local store = require("copilot-chat-context.store")
-local config = require("copilot-chat-context.config")
+local buffer = require("chat-context-ui.buffer")
+local store = require("chat-context-ui.store")
+local config = require("chat-context-ui.config")
 
 --- @param state ccc.State
 --- @return ccc.State

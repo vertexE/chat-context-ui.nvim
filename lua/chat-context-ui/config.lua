@@ -140,7 +140,7 @@ local labels = default_icons
 -- - automate indexing of the codebase?
 
 --- where we store all context between nvim sessions
-M.CACHE = "~/.cache/nvim/copilot-chat-context"
+M.CACHE = "~/.cache/nvim/chat-context-ui"
 
 --- @param opts ccc.PluginOpts
 M.setup = function(opts)

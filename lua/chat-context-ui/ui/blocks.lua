@@ -1,6 +1,6 @@
 local M = {}
 
-local float = require("copilot-chat-context.ui.float")
+local float = require("chat-context-ui.ui.float")
 
 --- expects a valid state.blocks.bufnr
 --- @param state ccc.State

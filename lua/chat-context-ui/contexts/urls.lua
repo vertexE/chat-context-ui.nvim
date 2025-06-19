@@ -1,9 +1,9 @@
 local M = {}
 
-local textarea = require("copilot-chat-context.ui.textarea")
-local store = require("copilot-chat-context.store")
-local notify = require("copilot-chat-context.external.notify")
-local config = require("copilot-chat-context.config")
+local textarea = require("chat-context-ui.ui.textarea")
+local store = require("chat-context-ui.store")
+local notify = require("chat-context-ui.external.notify")
+local config = require("chat-context-ui.config")
 
 --- @param state ccc.State
 --- @return ccc.State

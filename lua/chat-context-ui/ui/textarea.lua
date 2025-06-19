@@ -1,6 +1,6 @@
 local M = {}
 
-local float = require("copilot-chat-context.ui.float")
+local float = require("chat-context-ui.ui.float")
 
 --- textarea will open a centered float and
 --- use the buffer content as input to a callback

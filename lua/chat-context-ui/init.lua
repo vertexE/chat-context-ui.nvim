@@ -1,16 +1,16 @@
 local M = {}
 
-local ui = require("copilot-chat-context.ui.menu")
-local assistant = require("copilot-chat-context.assistant")
-local contexts = require("copilot-chat-context.contexts")
-local menu = require("copilot-chat-context.menu")
-local store = require("copilot-chat-context.store")
+local ui = require("chat-context-ui.ui.menu")
+local assistant = require("chat-context-ui.assistant")
+local contexts = require("chat-context-ui.contexts")
+local menu = require("chat-context-ui.menu")
+local store = require("chat-context-ui.store")
 
-local notify = require("copilot-chat-context.external.notify")
-local chat = require("copilot-chat-context.external.chat")
-local config = require("copilot-chat-context.config")
+local notify = require("chat-context-ui.external.notify")
+local chat = require("chat-context-ui.external.chat")
+local config = require("chat-context-ui.config")
 
---- setup should be called before require("copilot-chat-context").open()
+--- setup should be called before require("chat-context-ui").open()
 --- @param opts ?ccc.PluginOpts
 M.setup = function(opts)
     -- load dependencies
@@ -23,7 +23,7 @@ end
 --- @param state ccc.State
 local setup_autocmds = function(state)
     vim.api.nvim_create_autocmd({ "TabEnter" }, {
-        group = vim.api.nvim_create_augroup("copilot-chat-context.tab.move", { clear = true }),
+        group = vim.api.nvim_create_augroup("chat-context-ui.tab.move", { clear = true }),
         callback = function()
             ui.move(state)
         end,

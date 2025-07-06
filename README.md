@@ -56,7 +56,7 @@ With the assistant panel, you can do any of the following...
 - **action**: interact with copilot to create a response or manage context state
 - **context**: toggle additional info for copilot to use
 
-TODO
+https://github.com/user-attachments/assets/5dc82c75-6ced-4610-bf65-36afa7f06436
 
 ## Next Steps
 

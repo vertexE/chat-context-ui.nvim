@@ -6,14 +6,12 @@ local contexts = require("chat-context-ui.contexts")
 local menu = require("chat-context-ui.menu")
 local store = require("chat-context-ui.store")
 
-local notify = require("chat-context-ui.external.notify")
 local config = require("chat-context-ui.config")
 
 --- setup should be called before require("chat-context-ui").open()
 --- @param opts ?ccc.PluginOpts
 M.setup = function(opts)
     -- load dependencies
-    notify.setup() -- TODO: extract out to plugin option
     config.setup(opts)
     store.setup(opts)
 end

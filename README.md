@@ -70,5 +70,12 @@ The default keymaps is as follows
     - open hidden buf and hide cursor
     - type out what you want?
 - [ ] possibly add diffs to better compare proposed changes? could make this an option you enable...
-- [ ] configuration options for keymaps, UI, etc
 - [ ] build repo context map to allow copilot to fetch more info (such as function definitions, class declarations, etc)
+- [ ] build out feedback loop + quick actions
+
+### IDEA: Feedback loop + Quick actions
+
+- give constant feedback every N seconds
+- suggest quick actions (tries to come up with prompt)
+- if you select a quick action, it will start working
+  --> it will have to select that range and modify that range

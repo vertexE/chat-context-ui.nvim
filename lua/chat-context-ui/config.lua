@@ -2,8 +2,12 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"
+--- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"|"add-definition"|"toggle-help"
 --- @alias ccc.ContextID "selections"|"active-selection"|"git-staged"|"buffers"|"file-tree"|"url"|"lsp"
+
+--- show/hide the help screen
+--- @type ccc.ActionID
+M.toggle_help = "toggle-help"
 
 --- generate inline based off provided context, or replace what you've selected (requires selection context active)
 --- @type ccc.ActionID
@@ -16,6 +20,10 @@ M.ask = "ask"
 --- show the previously asked question
 --- @type ccc.ActionID
 M.show_previous_answer = "show-previous-answer"
+
+--- add the symbol def file to context
+--- @type ccc.ActionID
+M.add_definition = "add-definition"
 
 --- add the selected code block to the list (MAX 10)
 --- @type ccc.ActionID
@@ -81,87 +89,94 @@ M.file_tree = "file-tree"
 --- @type ccc.ContextID
 M.url = "url"
 
---- default keymap
---- @type table<string, ccc.ActionID|ccc.ContextID>
-local default_keys = {
-    --- Actions
-    [",g"] = M.generate,
-    [",a"] = M.ask,
-    [",A"] = M.show_previous_answer,
-    [",s"] = M.add_selection,
-    [",l"] = M.list_selections,
-    [",z"] = M.clear_selections,
-    [",u"] = M.add_url,
-    [",U"] = M.open_url,
-    [",q"] = M.quit,
-    --- Context Toggles
-    [",,b"] = M.selections,
-    [",,l"] = M.lsp,
-    [",,s"] = M.active_selection,
-    [",,g"] = M.git_staged,
-    [",,B"] = M.buffers,
-    [",,f"] = M.file_tree,
-    [",,u"] = M.url,
-}
+--- @alias ccc.layoutOpts "split"|"float"
 
---- @type table<ccc.ActionID|ccc.ContextID,string>
-local default_icons = {
-    --- actions
-    [M.generate] = "",
-    [M.ask] = "",
-    [M.show_previous_answer] = " ",
-    [M.add_selection] = "󰩭",
-    [M.list_selections] = "",
-    [M.clear_selections] = "󱟃",
-    [M.add_url] = "",
-    [M.open_url] = "󰜏",
-    [M.quit] = "",
-    --- contexts
-    [M.selections] = "",
-    [M.active_selection] = "󰒉",
-    [M.git_staged] = "",
-    [M.buffers] = "",
-    [M.file_tree] = "",
-    [M.url] = "",
-    [M.lsp] = "",
-    -- TODO: debugger
-}
+--- @class ccc.UiOpts
+--- @field layout ccc.layoutOpts
 
---- @type table<ccc.ActionID|ccc.ContextID, string>
-local key_lookup = {}
-
-local labels = default_icons
+--- @type ccc.UiOpts
 
 --- @class ccc.PluginOpts
 --- @field copy_on_prompt ?boolean whether to copy the prompt to clipboard after asking
---- @field keymaps ?table<string, ccc.ActionID|ccc.ContextID> override the default keys
---- @field leader ?string override the leading key, e.g. generate defaults to ",g" overriding this to <space> makes it "<space>g>"
---- @field labels ?table<ccc.ActionID|ccc.ContextID,string> override the default labels for actions and context toggles
+--- @field ui ?ccc.UiOpts
+--- @field keys ?table<ccc.ActionID|ccc.ContextID, string> override the default keys
+--- @field icons ?table<ccc.ActionID|ccc.ContextID, string> override the default keys
+
+--- @type ccc.PluginOpts
+local plugin_opts = {
+    keys = {
+        --- Actions
+        [M.generate] = ",g",
+        [M.ask] = ",a",
+        [M.show_previous_answer] = ",A",
+        [M.add_selection] = ",s",
+        [M.list_selections] = ",l",
+        [M.clear_selections] = ",z",
+        [M.add_url] = ",u",
+        [M.open_url] = ",U",
+        [M.quit] = ",q",
+        [M.toggle_help] = ",?",
+        --- Context Toggles
+        [M.selections] = ",,b",
+        [M.lsp] = ",,l",
+        [M.active_selection] = ",,s",
+        [M.git_staged] = ",,g",
+        [M.buffers] = ",,B",
+        [M.file_tree] = ",,f",
+        [M.url] = ",,u",
+    },
+    icons = {
+        --- actions
+        [M.generate] = "",
+        [M.ask] = "",
+        [M.show_previous_answer] = " ",
+        [M.add_selection] = "󰩭",
+        [M.list_selections] = "",
+        [M.clear_selections] = "󱟃",
+        [M.add_url] = "",
+        [M.open_url] = "󰜏",
+        [M.quit] = "",
+        --- contexts
+        [M.selections] = "",
+        [M.active_selection] = "󰒉",
+        [M.git_staged] = "",
+        [M.buffers] = "",
+        [M.file_tree] = "",
+        [M.url] = "", -- FIXME: probably remove?
+        [M.lsp] = "",
+        -- TODO: debugger 
+    },
+    ui = {
+        layout = "float",
+    },
+}
 
 -- TODO:
--- - add vert-split as an option for RHS toolbar + float/split sizing
 -- - add ability to disable actions / contexts entirely
 -- - try adding ability to hide certain options? Such as hiding ask / explain
--- - always on that tries to suggest changes
--- - automate indexing of the codebase?
+-- - always on that tries to suggest changes (feedback mode)
+-- - automate indexing of the codebase? --> would require external work...
 
 --- where we store all context between nvim sessions
 M.CACHE = "~/.cache/nvim/chat-context-ui"
 
---- @param opts ccc.PluginOpts
+--- @param opts ?ccc.PluginOpts
 M.setup = function(opts)
-    for key, action in pairs(default_keys) do
-        if opts.keymaps ~= nil and opts.keymaps[key] ~= nil then
-            key_lookup[opts.keymaps[key]] = key
-        else
-            key_lookup[action] = key
+    opts = opts or {}
+    if opts.keys ~= nil then
+        for action, key in pairs(opts.keys) do
+            plugin_opts.keys[action] = key
         end
     end
 
-    if opts.labels ~= nil then
-        for id, label in pairs(opts.labels) do
-            labels[id] = label
+    if opts.icons ~= nil then
+        for id, label in pairs(opts.icons) do
+            plugin_opts.icons[id] = label
         end
+    end
+
+    if opts.ui ~= nil then
+        plugin_opts.ui = vim.tbl_extend("force", plugin_opts.ui, opts.ui)
     end
 end
 
@@ -181,14 +196,48 @@ end
 --- @param id ccc.ActionID|ccc.ContextID
 --- @return string
 function M.key(id)
-    return key_lookup[id] or hidden(id)
+    return plugin_opts.keys[id] or hidden(id)
+end
+
+--- @return table<table<ccc.ActionID|ccc.ContextID, string>>
+function M.keys()
+    local help = {
+        --- Actions
+        { [M.generate] = M.key(M.generate) },
+        { [M.ask] = M.key(M.ask) },
+        { [M.show_previous_answer] = M.key(M.show_previous_answer) },
+        { [M.add_selection] = M.key(M.add_selection) },
+        { [M.list_selections] = M.key(M.list_selections) },
+        { [M.clear_selections] = M.key(M.clear_selections) },
+        { [M.add_url] = M.key(M.add_url) },
+        { [M.open_url] = M.key(M.open_url) },
+        {},
+        --- Context Toggles
+        { [M.selections] = M.key(M.selections) },
+        { [M.lsp] = M.key(M.lsp) },
+        { [M.active_selection] = M.key(M.active_selection) },
+        { [M.git_staged] = M.key(M.git_staged) },
+        { [M.buffers] = M.key(M.buffers) },
+        { [M.file_tree] = M.key(M.file_tree) },
+        { [M.url] = M.key(M.url) },
+        {},
+        { [M.toggle_help] = M.key(M.toggle_help) },
+        { [M.quit] = M.key(M.quit) },
+    }
+
+    return help
 end
 
 -- returns the action key from the config
 --- @param id ccc.ActionID|ccc.ContextID
 --- @return string
-function M.label(id)
-    return labels[id] or ""
+function M.icon(id)
+    return plugin_opts.icons[id] or ""
+end
+
+--- @return ccc.UiOpts
+function M.ui()
+    return plugin_opts.ui
 end
 
 return M

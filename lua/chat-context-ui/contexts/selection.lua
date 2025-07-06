@@ -11,6 +11,12 @@ M.setup = function(state)
         id = config.active_selection,
         ui = "menu",
         active = false,
+        --- @param _state ccc.State
+        --- @return table<string,string>
+        meta = function(_state)
+            local sel_start, sel_end = buffer.active_selection()
+            return { string.format("%d:%d", sel_start, sel_end), "Comment" }
+        end,
         getter = M.context,
     })
     return state

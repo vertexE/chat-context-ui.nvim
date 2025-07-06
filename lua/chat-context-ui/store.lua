@@ -14,6 +14,7 @@ local config = require("chat-context-ui.config")
 --- @field menu ccc.Menu
 --- @field loaded boolean if PersistedState has been loaded in
 --- @field blocks ccc.Blocks
+--- @field files string[]
 --- @field url string
 --- @field actions table<ccc.Action>
 --- @field contexts table<ccc.Context>
@@ -25,6 +26,7 @@ local config = require("chat-context-ui.config")
 
 --- @class ccc.Menu
 --- @field open boolean
+--- @field help boolean whether to draw the help screen instead
 --- @field bufnr integer
 
 --- @class ccc.Blocks
@@ -57,6 +59,7 @@ local PERSIST_FILE_NAME = "_chat-context-ui.json"
 
 --- @return ccc.State
 M.default_state = function()
+    --- @type ccc.State
     return {
         requesting_bufnr = -1,
         opts = {
@@ -65,9 +68,11 @@ M.default_state = function()
         menu = {
             open = false,
             bufnr = -1,
+            help = false,
         },
         url = "",
         loaded = false,
+        files = {},
         blocks = {
             pos = 1,
             list = {},
@@ -118,7 +123,7 @@ M.register_context = function(context, opts)
                 vim.defer_fn(M.persist, 0)
             end
         end
-    end, { desc = "ai: toggle " .. context.id, buffer = opts.bufnr })
+    end, { desc = "chat-context-ui: toggle " .. context.id, buffer = opts.bufnr })
     return #state.contexts
 end
 
@@ -145,7 +150,7 @@ M.register_action = function(action, opts)
         if action.id ~= config.quit then
             vim.defer_fn(M.persist, 0)
         end
-    end, { desc = "ai: " .. action.id, buffer = opts.bufnr })
+    end, { desc = "chat-context-ui: " .. action.id, buffer = opts.bufnr })
     return #state.actions
 end
 
@@ -222,9 +227,9 @@ M.persist = function()
     end
 end
 
---- comment
---- @param opts ccc.PluginOpts
+--- @param opts ?ccc.PluginOpts
 M.setup = function(opts)
+    opts = opts or {}
     local dir = vim.fn.expand(config.CACHE)
     if vim.fn.isdirectory(dir) == 0 then
         vim.fn.mkdir(dir, "p")

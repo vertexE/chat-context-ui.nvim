@@ -1,6 +1,6 @@
 local M = {}
 
-local ui = require("chat-context-ui.ui.menu")
+local mui = require("chat-context-ui.ui.menu")
 local assistant = require("chat-context-ui.assistant")
 local contexts = require("chat-context-ui.contexts")
 local menu = require("chat-context-ui.menu")
@@ -14,18 +14,25 @@ local config = require("chat-context-ui.config")
 --- @param opts ?ccc.PluginOpts
 M.setup = function(opts)
     -- load dependencies
-    notify.setup()
-    chat.setup()
-    config.setup(opts or {})
-    store.setup(opts or {})
+    notify.setup() -- TODO: extract out to plugin option
+    chat.setup() -- TODO: extract out to plugin option
+    config.setup(opts)
+    store.setup(opts)
 end
 
 --- @param state ccc.State
 local setup_autocmds = function(state)
     vim.api.nvim_create_autocmd({ "TabEnter" }, {
-        group = vim.api.nvim_create_augroup("chat-context-ui.tab.move", { clear = true }),
+        group = vim.api.nvim_create_augroup("chat-context-ui.tab.reopen", { clear = true }),
         callback = function()
-            ui.move(state)
+            mui.reopen(state)
+        end,
+    })
+
+    vim.api.nvim_create_autocmd({ "CursorMoved" }, {
+        group = vim.api.nvim_create_augroup("chat-context-ui.tab.draw", { clear = true }),
+        callback = function()
+            mui.draw(state)
         end,
     })
 end
@@ -41,7 +48,7 @@ M.open = function()
     -- if store loaded, let's just ui.open again + re-register actions + contexts...
     if state.loaded then
         store.remap()
-        ui.open(state)
+        mui.open(state)
         return
     end
 
@@ -49,7 +56,7 @@ M.open = function()
     contexts.attach(state)
     menu.attach(state)
     store.load()
-    ui.open(state)
+    mui.open(state)
 end
 
 return M

@@ -27,6 +27,11 @@ M.setup = function(state)
     store.register_context({
         id = config.url,
         active = false,
+        --- @param _state ccc.State
+        --- @return table<string,string>
+        meta = function(_state)
+            return { #_state.url > 0 and _state.url or "none", "Comment" }
+        end,
         getter = M.context,
         ui = "menu",
     })

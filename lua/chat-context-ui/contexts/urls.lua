@@ -2,7 +2,6 @@ local M = {}
 
 local textarea = require("chat-context-ui.ui.textarea")
 local store = require("chat-context-ui.store")
-local notify = require("chat-context-ui.external.notify")
 local config = require("chat-context-ui.config")
 
 --- @param state ccc.State
@@ -53,7 +52,7 @@ end
 --- @return ccc.State
 M.open = function(state)
     if #state.url > 0 then
-        notify.add("opening " .. state.url, "INFO", { timeout = 1500, hg = "Comment" })
+        vim.notify("opening " .. state.url, vim.log.levels.INFO, {})
         local escaped_url = vim.fn.shellescape(state.url, true)
         -- remove the added quotes
         local url = string.sub(escaped_url, 2, #escaped_url - 1)
@@ -66,7 +65,7 @@ end
 --- @return ccc.State
 M.replace = function(state)
     if #state.url > 0 then
-        notify.add("replacing " .. state.url, "INFO", { timeout = 3500, hg = "Comment" })
+        vim.notify("replacing " .. state.url, vim.log.levels.INFO, {})
     end
     textarea.open({ prompt = "url", height = 3 }, function(input)
         if input == nil or #input == 0 then
@@ -74,7 +73,7 @@ M.replace = function(state)
         end
 
         if #input > 1 then
-            notify.add("only using the 1st line", "WARN", { timeout = 2500, hg = "DiagnosticWarn" })
+            vim.notify("only using the 1st line", vim.log.levels.WARN, {})
         end
 
         state.url = input[1]

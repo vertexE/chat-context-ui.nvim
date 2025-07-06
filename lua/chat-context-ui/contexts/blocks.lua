@@ -2,7 +2,6 @@ local M = {}
 
 local buffer = require("chat-context-ui.buffer")
 local store = require("chat-context-ui.store")
-local notify = require("chat-context-ui.external.notify")
 local config = require("chat-context-ui.config")
 
 --- @class ccc.Block
@@ -63,7 +62,7 @@ end
 --- @return ccc.State
 M.list = function(state)
     if #state.blocks.list == 0 then
-        notify.add("no saved selections", "WARN", { timeout = 1500, hg = "DiagnosticWarn" })
+        vim.notify("no saved selections", vim.log.levels.WARN, {})
         return state
     end
 
@@ -132,7 +131,7 @@ M.add = function(state)
 
     if #state.blocks.list == MAX_BLOCKS then
         state.blocks.list = vim.list_slice(state.blocks.list, 2)
-        notify.add("max chunks, dropping oldest", "WARN", { timeout = 1500, hg = "DiagnosticWarn" })
+        vim.notify("max chunks, dropping oldest", vim.log.levels.WARN, {})
     end
 
     table.insert(

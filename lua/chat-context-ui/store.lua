@@ -1,6 +1,5 @@
 local M = {}
 
-local notify = require("chat-context-ui.external.notify")
 local files = require("chat-context-ui.external.files")
 local git = require("chat-context-ui.external.git")
 
@@ -143,7 +142,7 @@ M.register_action = function(action, opts)
     end
     vim.keymap.set(action.mode, config.key(action.id), function()
         if #action.notification > 0 then
-            notify.add(action.notification, "INFO", { timeout = 1500, hg = "Comment" })
+            vim.notify(action.notification, vim.log.levels.INFO, {})
         end
         state = action.apply(state)
         if state.menu.open then
@@ -225,7 +224,7 @@ M.persist = function()
     local dir = vim.fn.expand(config.CACHE)
     local err = files.write(dir .. "/" .. git.root():gsub("/", "_") .. PERSIST_FILE_NAME, raw)
     if err ~= nil then
-        notify.add("failed to persist ai state", "ERROR", { timeout = 1500, hg = "DiagnosticError" })
+        vim.notify("failed to persist chat-context-ui state", vim.log.levels.ERROR, {})
     end
 end
 

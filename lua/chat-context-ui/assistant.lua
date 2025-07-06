@@ -4,11 +4,10 @@ local buffer = require("chat-context-ui.buffer")
 local store = require("chat-context-ui.store")
 local float = require("chat-context-ui.ui.float")
 local textarea = require("chat-context-ui.ui.textarea")
-local split = require("chat-context-ui.ui.split")
 local loader = require("chat-context-ui.ui.loader")
 local text = require("chat-context-ui.text")
 
-local chat = require("chat-context-ui.external.chat")
+local agent = require("chat-context-ui.agent")
 local config = require("chat-context-ui.config")
 
 local CMD_PREFIX = "<command>"
@@ -106,29 +105,28 @@ M.ask = function(state)
 - if there is a previous question, then this question builds on that one
 </rules>
         ]]
-        chat.client()
-            .ask(pre .. "<question>" .. vim.fn.join(input, "\n") .. "</question>\n" .. knowledge .. qr_history, {
-                headless = true,
-                callback = function(response, _)
-                    qr_response = response
-                    qr_history = "<previous-question>"
-                        .. vim.fn.join(input, "\n")
-                        .. "</previous-question><previous-answer>"
-                        .. response
-                        .. "</previous-answer>"
-                    qr_bufnr = float.open(response, {
-                        bufnr = (qr_bufnr and vim.api.nvim_buf_is_valid(qr_bufnr)) and qr_bufnr or nil,
-                        enter = false,
-                        rel = "lhs",
-                        row = 1000, -- ensure it pops up on the bottom
-                        height = 10,
-                        width = 0.8,
-                        bo = { filetype = "markdown" },
-                        wo = { wrap = true },
-                        close_on_q = true,
-                    })
-                end,
-            })
+        agent.chat({
+            prompt = pre .. "<question>" .. vim.fn.join(input, "\n") .. "</question>\n" .. knowledge .. qr_history,
+            resolve = function(response)
+                qr_response = response
+                qr_history = "<previous-question>"
+                    .. vim.fn.join(input, "\n")
+                    .. "</previous-question><previous-answer>"
+                    .. response
+                    .. "</previous-answer>"
+                qr_bufnr = float.open(response, {
+                    bufnr = (qr_bufnr and vim.api.nvim_buf_is_valid(qr_bufnr)) and qr_bufnr or nil,
+                    enter = false,
+                    rel = "lhs",
+                    row = 1000, -- ensure it pops up on the bottom
+                    height = 10,
+                    width = 0.8,
+                    bo = { filetype = "markdown" },
+                    wo = { wrap = true },
+                    close_on_q = true,
+                })
+            end,
+        })
     end)
     return state
 end
@@ -170,9 +168,9 @@ M.generate = function(state)
         end
         local ns_id = loader.create(_start, _end, should_replace)
         local prompt_cmd = CMD_PREFIX .. vim.fn.join(input, "\n") .. CMD_POSTFIX
-        chat.client().ask(prompt_header .. prompt_cmd, {
-            headless = true,
-            callback = function(response, _)
+        agent.chat({
+            prompt = prompt_header .. prompt_cmd,
+            resolve = function(response)
                 local lines = vim.split(text.select_content(response), "\n")
                 loader.clear(ns_id)
                 if should_replace then

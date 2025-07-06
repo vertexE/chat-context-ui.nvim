@@ -4,6 +4,10 @@ local float = require("chat-context-ui.ui.float")
 local split = require("chat-context-ui.ui.split")
 local config = require("chat-context-ui.config")
 
+local FLOAT_HEIGHT = 9
+local FLOAT_HEIGHT_HELP = 25
+local FLOAT_WIDTH = 28
+
 --- @param state ccc.State
 local draw_help = function(state)
     local ns = vim.api.nvim_create_namespace("chat-context-ui.virtual_text")
@@ -71,7 +75,11 @@ M.draw = function(state)
         return
     end
 
-    if state.menu.help then
+    local tabnr = vim.api.nvim_get_current_tabpage()
+    if state.menu.help and config.ui().layout == "float" and state.menu.winr_by_tab[tabnr] ~= nil then
+        vim.api.nvim_win_set_height(state.menu.winr_by_tab[tabnr], FLOAT_HEIGHT_HELP)
+        return draw_help(state)
+    elseif state.menu.help then
         return draw_help(state)
     end
 
@@ -80,20 +88,14 @@ M.draw = function(state)
     end
     -- else, draw a floating window
 
+    -- ensure height is correct for float
+    if state.menu.winr_by_tab[tabnr] ~= nil then
+        vim.api.nvim_win_set_height(state.menu.winr_by_tab[tabnr], FLOAT_HEIGHT)
+    end
     local ns = vim.api.nvim_create_namespace("chat-context-ui.virtual_text")
     vim.api.nvim_buf_clear_namespace(state.menu.bufnr, ns, 0, -1)
 
     local lines = {}
-    for _, action in ipairs(state.actions) do
-        if not action.hidden then
-            local line =
-                { { config.key(action.id) .. " - ", "Comment" }, { config.icon(action.id), "AIActionsAction" } }
-            table.insert(lines, line)
-        end
-    end
-    table.insert(lines, {})
-    table.insert(lines, { { "Contexts", "AIActionsHeader" } })
-
     for _, context in ipairs(state.contexts) do
         local meta = { "", "Comment" }
         if context.meta ~= nil then
@@ -111,7 +113,10 @@ M.draw = function(state)
     end
 
     vim.api.nvim_buf_set_extmark(state.menu.bufnr, ns, 0, 0, {
-        virt_text = { { "Agent", "AIActionsHeader" } },
+        virt_text = {
+            { "Agent", "AIActionsHeader" },
+            { " help " .. config.key(config.toggle_help), "Comment" },
+        },
         virt_lines = lines,
         virt_text_pos = "inline",
     })
@@ -120,21 +125,29 @@ end
 --- should open a window on the RHS with the AI options (actions + contexts)
 --- @param state ccc.State
 M.open = function(state)
-    if config.ui().layout == "float" then
-        state.menu.bufnr = float.open(nil, {
+    local ui = config.ui()
+
+    if ui.layout == "float" then
+        local bufnr, winr = float.open(nil, {
             title = "",
             rel = "rhs",
-            row = 1,
-            width = 15,
-            height = 20,
+            row = ui.float_pos == "top" and 1 or 5000, -- 5000 ensures float is set to bottom
+            width = FLOAT_WIDTH,
+            height = FLOAT_HEIGHT,
             enter = false,
             wo = { number = false, relativenumber = false },
         })
-    elseif config.ui().layout == "split" then
-        state.menu.bufnr = split.vertical(nil, {
+        state.menu.bufnr = bufnr
+        local tabnr = vim.api.nvim_win_get_tabpage(winr)
+        state.menu.winr_by_tab[tabnr] = winr
+    elseif ui.layout == "split" then
+        local bufnr, winr = split.vertical(nil, {
             enter = false,
             wo = { number = false, relativenumber = false, winfixwidth = true },
         })
+        state.menu.bufnr = bufnr
+        local tabnr = vim.api.nvim_win_get_tabpage(winr)
+        state.menu.winr_by_tab[tabnr] = winr
     else
         vim.notify("invalid layout option", vim.log.levels.ERROR, {})
         return
@@ -155,23 +168,28 @@ M.reopen = function(state)
         return
     end
 
-    if config.ui().layout == "float" then
-        float.open(nil, {
+    local ui = config.ui()
+    if ui.layout == "float" then
+        local _, winr = float.open(nil, {
             bufnr = state.menu.bufnr,
             title = "",
             rel = "rhs",
-            row = 1,
-            width = 15,
-            height = 20,
+            row = ui.float_pos == "top" and 1 or 5000, -- 5000 ensures float is set to bottom
+            width = FLOAT_WIDTH,
+            height = FLOAT_HEIGHT,
             enter = false,
             wo = { number = false, relativenumber = false },
         })
-    elseif config.ui().layout == "split" then -- TODO: can expand ui to include other options (width)
-        split.vertical(nil, {
+        local tabnr = vim.api.nvim_win_get_tabpage(winr)
+        state.menu.winr_by_tab[tabnr] = winr
+    elseif ui.layout == "split" then -- TODO: can expand ui to include other options (width)
+        local _, winr = split.vertical(nil, {
             bufnr = state.menu.bufnr,
             enter = false,
             wo = { number = false, relativenumber = false, winfixwidth = true },
         })
+        local tabnr = vim.api.nvim_win_get_tabpage(winr)
+        state.menu.winr_by_tab[tabnr] = winr
     else
         vim.notify("invalid layout option", vim.log.levels.ERROR, {})
     end

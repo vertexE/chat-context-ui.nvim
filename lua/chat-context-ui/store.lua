@@ -28,6 +28,7 @@ local config = require("chat-context-ui.config")
 --- @field open boolean
 --- @field help boolean whether to draw the help screen instead
 --- @field bufnr integer
+--- @field winr_by_tab table<integer,integer> possible wins, not guaranteed to be open, indexed by tab
 
 --- @class ccc.Blocks
 --- @field pos integer
@@ -69,6 +70,7 @@ M.default_state = function()
             open = false,
             bufnr = -1,
             help = false,
+            winr_by_tab = {},
         },
         url = "",
         loaded = false,

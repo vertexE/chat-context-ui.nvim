@@ -32,6 +32,7 @@ local ABOVE_OFFSET = 2
 
 --- @param content ?string
 --- @param opts ?ccc.FloatOpts
+--- @return integer,integer
 M.open = function(content, opts)
     opts = opts or default_opts
     opts.height = opts.height or default_opts.height
@@ -109,7 +110,7 @@ M.open = function(content, opts)
         end, { buffer = bufnr })
     end
 
-    return bufnr
+    return bufnr, float_win
 end
 
 return M

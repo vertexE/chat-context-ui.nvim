@@ -89,21 +89,28 @@ M.file_tree = "file-tree"
 --- @type ccc.ContextID
 M.url = "url"
 
+--- @class ccc.AgentOpts
+--- @field callback ?fun(prompt:string,resolve:fun(response:string))
+
 --- @alias ccc.layoutOpts "split"|"float"
+--- @alias ccc.floatPos "top"|"bottom"
 
 --- @class ccc.UiOpts
---- @field layout ccc.layoutOpts
+--- @field layout ?ccc.layoutOpts
+--- @field float_pos ?ccc.floatPos whether the floating menu should be at the top or bottom
 
 --- @type ccc.UiOpts
 
 --- @class ccc.PluginOpts
 --- @field copy_on_prompt ?boolean whether to copy the prompt to clipboard after asking
 --- @field ui ?ccc.UiOpts
+--- @field agent ?ccc.AgentOpts describes what agent to call
 --- @field keys ?table<ccc.ActionID|ccc.ContextID, string> override the default keys
 --- @field icons ?table<ccc.ActionID|ccc.ContextID, string> override the default keys
 
 --- @type ccc.PluginOpts
 local plugin_opts = {
+    agent = {},
     keys = {
         --- Actions
         [M.generate] = ",g",
@@ -136,6 +143,7 @@ local plugin_opts = {
         [M.add_url] = "",
         [M.open_url] = "󰜏",
         [M.quit] = "",
+        [M.toggle_help] = "󰞋",
         --- contexts
         [M.selections] = "",
         [M.active_selection] = "󰒉",
@@ -148,6 +156,7 @@ local plugin_opts = {
     },
     ui = {
         layout = "float",
+        float_pos = "top",
     },
 }
 
@@ -177,6 +186,12 @@ M.setup = function(opts)
 
     if opts.ui ~= nil then
         plugin_opts.ui = vim.tbl_extend("force", plugin_opts.ui, opts.ui)
+    end
+
+    if opts.agent ~= nil then
+        plugin_opts.agent = vim.tbl_extend("force", plugin_opts.agent, opts.agent)
+    else
+        vim.notify("chat-context-ui: missing agent config", vim.log.levels.ERROR, {})
     end
 end
 
@@ -238,6 +253,11 @@ end
 --- @return ccc.UiOpts
 function M.ui()
     return plugin_opts.ui
+end
+
+--- @return ccc.AgentOpts|nil
+function M.agent()
+    return plugin_opts.agent
 end
 
 return M

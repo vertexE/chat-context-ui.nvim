@@ -87,7 +87,7 @@ local vertical_defaults = {
 
 --- @param content ?string
 --- @param opts ?ccc.VSplitOpts
---- @return integer bufnr
+--- @return integer,integer
 M.vertical = function(content, opts)
     opts = opts or {}
     -- Set defaults for vertical split
@@ -129,7 +129,7 @@ M.vertical = function(content, opts)
         end, { buffer = opts.bufnr })
     end
 
-    return opts.bufnr
+    return opts.bufnr, split_win
 end
 
 return M

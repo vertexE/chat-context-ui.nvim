@@ -182,7 +182,8 @@ M.reopen = function(state)
         })
         local tabnr = vim.api.nvim_win_get_tabpage(winr)
         state.menu.winr_by_tab[tabnr] = winr
-    elseif ui.layout == "split" then -- TODO: can expand ui to include other options (width)
+    -- TODO: can expand ui to include other options (width)
+    elseif ui.layout == "split" and state.menu.winr_by_tab[vim.api.nvim_win_get_tabpage(0)] == nil then
         local _, winr = split.vertical(nil, {
             bufnr = state.menu.bufnr,
             enter = false,
@@ -190,6 +191,9 @@ M.reopen = function(state)
         })
         local tabnr = vim.api.nvim_win_get_tabpage(winr)
         state.menu.winr_by_tab[tabnr] = winr
+    elseif ui.layout == "split" and state.menu.winr_by_tab[vim.api.nvim_win_get_tabpage(0)] ~= nil then
+        -- valid state, no-op
+        return
     else
         vim.notify("invalid layout option", vim.log.levels.ERROR, {})
     end

@@ -8,6 +8,26 @@ local FLOAT_HEIGHT = 9
 local FLOAT_HEIGHT_HELP = 25
 local FLOAT_WIDTH = 28
 
+-- TODO: mv to config
+
+--- @type table<ccc.FeedbackActionType,table>
+local icons_hl = {
+    ["INSERT"] = { icon = " ", hl = "MiniIconsGreen" },
+    ["REPLACE"] = { icon = " ", hl = "MiniIconsYellow" },
+    ["DELETE"] = { icon = "󰆴 ", hl = "MiniIconsRed" },
+}
+
+---@param type ccc.FeedbackActionType
+---@return string,string
+local fb_action_icon_hl = function(type)
+    local t = icons_hl[type]
+    if t == nil then
+        return "", ""
+    end
+
+    return t.icon, t.hl
+end
+
 --- @param state ccc.State
 local draw_help = function(state)
     local ns = vim.api.nvim_create_namespace("chat-context-ui.virtual_text")
@@ -57,7 +77,40 @@ local draw_split = function(state)
         })
     end
 
-    -- TODO: extend drawing to include copilot "feedback" mode 
+    table.insert(lines, {})
+    table.insert(lines, {
+        { "Feedback Mode", "AIActionsHeader" },
+        {
+            not state.feedback_on and " OFF" or (state.feedback_lock and " LOADING" or " READY"),
+            not state.feedback_on and "Comment" or (state.feedback_lock and "MiniIconsYellow" or "MiniIconsGreen"),
+        },
+    })
+    if state.feedback_on and #state.fb_actions > 0 then
+        for _, fb_action in ipairs(state.fb_actions) do
+            local icon, hl = fb_action_icon_hl(fb_action.type)
+            local words = vim.split(fb_action.name, " ")
+            local hl1 = table.concat(words, " ", 1, #words / 2)
+            local hl2 = table.concat(words, " ", (#words / 2) + 1)
+            table.insert(lines, {}) -- newline
+            table.insert(lines, {
+                { icon, hl },
+                { " ", "Comment" },
+                { hl1, "markdownH5" },
+            })
+            table.insert(lines, {
+                { hl2, "markdownH5" },
+            })
+
+            table.insert(lines, {
+                { vim.fn.fnamemodify(fb_action.filepath, ":t"), "Comment" },
+                { "  " .. fb_action.line .. ":" .. fb_action.end_line, "Comment" },
+            })
+        end
+    elseif state.feedback_on then
+        table.insert(lines, {
+            { "write to any buffer to begin...", "Comment" },
+        })
+    end
 
     vim.api.nvim_buf_set_extmark(state.menu.bufnr, ns, 0, 0, {
         virt_text = {

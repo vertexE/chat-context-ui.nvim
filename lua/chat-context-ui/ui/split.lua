@@ -22,8 +22,8 @@ local horizontal_defaults = {
 -- TODO: update horizontal or rmv
 
 --- @param content ?string
---- @param opts ?ccc.HSplitOpts
---- @return integer bufnr
+--- @param opts ?ccc.VSplitOpts
+--- @return integer,integer
 M.horizontal = function(content, opts)
     opts = opts or {}
     if opts.enter ~= nil then
@@ -36,34 +36,35 @@ M.horizontal = function(content, opts)
     else
         opts.close_on_q = horizontal_defaults.close_on_q
     end
-    opts.bufnr = opts.bufnr ~= nil and opts.bufnr or horizontal_defaults.bufnr
+    opts.bufnr = opts.bufnr ~= nil and opts.bufnr or vim.api.nvim_create_buf(true, true)
     opts.bo = opts.bo ~= nil and opts.bo or horizontal_defaults.bo
-    opts.height = opts.height ~= nil and opts.height or horizontal_defaults.height
+    opts.wo = opts.wo ~= nil and opts.wo or horizontal_defaults.wo
+    opts.width = opts.width ~= nil and opts.width or 10
 
-    vim.cmd("split")
-    vim.cmd(string.format("resize %d", 10))
-    local bufnr = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_win_set_buf(0, bufnr)
+    local split_win = vim.api.nvim_open_win(opts.bufnr, opts.enter, {
+        split = "below",
+        height = opts.width,
+    })
 
     if content ~= nil and #content > 0 then
-        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.split(content, "\n"))
+        vim.api.nvim_buf_set_lines(opts.bufnr, 0, -1, false, vim.split(content, "\n"))
     end
 
     for buf_opt, setting in pairs(opts.bo) do
-        vim.api.nvim_set_option_value(buf_opt, setting, { buf = bufnr })
+        vim.api.nvim_set_option_value(buf_opt, setting, { buf = opts.bufnr })
     end
 
-    if not opts.enter then
-        vim.cmd("wincmd p")
+    for wo_opt, setting in pairs(opts.wo) do
+        vim.api.nvim_set_option_value(wo_opt, setting, { win = split_win })
     end
 
     if opts.close_on_q then
         vim.keymap.set("n", "q", function()
-            vim.api.nvim_buf_delete(bufnr, { force = true })
-        end, { buffer = bufnr })
+            vim.api.nvim_buf_delete(opts.bufnr, { force = true })
+        end, { buffer = opts.bufnr })
     end
 
-    return bufnr
+    return opts.bufnr, split_win
 end
 
 --- @class ccc.VSplitOpts

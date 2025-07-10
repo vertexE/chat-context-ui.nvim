@@ -6,6 +6,7 @@ local float = require("chat-context-ui.ui.float")
 local textarea = require("chat-context-ui.ui.textarea")
 local loader = require("chat-context-ui.ui.loader")
 local text = require("chat-context-ui.text")
+local fb_parser = require("chat-context-ui.parsers.feedback")
 
 local agent = require("chat-context-ui.agent")
 local config = require("chat-context-ui.config")
@@ -40,6 +41,30 @@ M.attach = function(state)
         hidden = false,
         apply = M.show_previous_answer,
     })
+    store.register_action({
+        id = config.toggle_feedback,
+        notification = "",
+        mode = { "n" },
+        ui = "menu",
+        hidden = false,
+        apply = M.feedback_mode,
+    })
+    store.register_action({
+        id = config.set_goal,
+        notification = "",
+        mode = { "n" },
+        ui = "menu",
+        hidden = false,
+        apply = M.set_goal,
+    })
+    store.register_action({
+        id = config.open_feedback_menu,
+        notification = "",
+        mode = { "n" },
+        ui = "feedback_menu_open",
+        hidden = false,
+        apply = M.list_feedback_actions,
+    })
 
     return state
 end
@@ -58,6 +83,176 @@ local contexts = function(state)
     return prompt
 end
 
+--- @param state ccc.State
+--- @return ccc.State
+M.set_goal = function(state)
+    textarea.open({ prompt = "  Goal", content = state.goal }, function(input)
+        if input == nil then
+            return
+        end
+        state.goal = table.concat(input, "\n")
+    end)
+    return state
+end
+
+--- @param state ccc.State
+--- @return ccc.State
+M.list_feedback_actions = function(state)
+    local requesting_bufnr = vim.api.nvim_get_current_buf() -- where we will apply the action
+    local requesting_winr = vim.api.nvim_get_current_win()
+    local row, col = vim.fn.getpos(".")[2], vim.fn.getpos(".")[3]
+    state.feedback_menu_bufnr = vim.api.nvim_create_buf(false, false)
+    store.register_action({
+        id = config.expand_item,
+        notification = "",
+        mode = { "n" },
+        ui = "feedback_menu_redraw",
+        hidden = false,
+        apply = function(_state)
+            -- loop to check if any toggled on, if so, close expanded and return early
+            for _, fb_action in ipairs(_state.fb_actions) do
+                if fb_action.expanded then
+                    fb_action.expanded = false
+                    return _state
+                end
+            end
+
+            local cur_pos = vim.fn.getpos(".")[2]
+            --- @type ccc.FeedbackAction
+            local action = _state.fb_actions[cur_pos]
+            action.expanded = true
+            return _state
+        end,
+    }, { bufnr = state.feedback_menu_bufnr })
+    store.register_action({
+        id = config.select_item,
+        notification = "",
+        mode = { "n" },
+        ui = "menu", -- we want the menu redrawn after deleting an action
+        hidden = false,
+        apply = function(_state)
+            local cur_pos = vim.fn.getpos(".")[2]
+            vim.api.nvim_buf_delete(_state.feedback_menu_bufnr, { force = true })
+            _state.feedback_menu_open = false
+            vim.api.nvim_win_set_cursor(requesting_winr, { row, col })
+
+            --- @type ccc.FeedbackAction
+            local action = _state.fb_actions[cur_pos]
+            vim.cmd(string.format("e %s", action.filepath))
+            local max_line = vim.api.nvim_buf_line_count(0)
+            vim.api.nvim_win_set_cursor(0, { math.min(action.line, max_line), 0 })
+            if action ~= nil and action.type == "INSERT" then
+                vim.api.nvim_buf_set_lines(requesting_bufnr, action.line, action.line, false, action.content)
+            elseif action ~= nil and action.type == "REPLACE" then
+                vim.api.nvim_buf_set_lines(requesting_bufnr, action.line - 1, action.end_line, false, action.content)
+            elseif action ~= nil and action.type == "DELETE" then
+                vim.api.nvim_buf_set_lines(requesting_bufnr, action.line - 1, action.line, false, {})
+            else
+                vim.notify("chat-context-ui: invalid feedback action", vim.log.levels.WARN, {})
+            end
+
+            --- you should not be able to request the same action again
+            table.remove(_state.fb_actions, cur_pos)
+            return _state
+        end,
+    }, { bufnr = state.feedback_menu_bufnr })
+
+    vim.api.nvim_buf_attach(state.feedback_menu_bufnr, false, {
+        on_detach = function()
+            state.feedback_menu_open = false
+            store.deregister_action(config.expand_item)
+            store.deregister_action(config.select_item)
+        end,
+    })
+
+    return state
+end
+
+--- @param state ccc.State
+--- @return ccc.State
+M.feedback_mode = function(state)
+    state.feedback_on = not state.feedback_on
+
+    if not state.feedback_on then
+        vim.api.nvim_clear_autocmds({ group = "ccc.assistant.feedback" })
+        return state
+    end
+
+    vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+        group = vim.api.nvim_create_augroup("ccc.assistant.feedback", { clear = true }),
+        callback = function()
+            if state.feedback_lock then
+                return
+            end
+
+            state.feedback_lock = true
+
+            -- TODO: could make this debounce by using a timer?
+            vim.defer_fn(function()
+                local goal = state.goal
+                if goal == nil or #goal == 0 then
+                    local fname = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t")
+                    goal = string.format("propose improvements to the file %s", fname)
+                end
+
+                local prompt = string.format(
+                    [[
+<goal>%s</goal>
+<rules>
+- you can respond with the top 6 best actions
+- each action starts with #
+- you must specify a file path starting from the current working directory
+- action types are `INSERT | REPLACE | DELETE`
+- you must specify line range, such as 36:36 (only line 36) or 36:42 (inclusive)
+- your response MUST follow this schema otherwise you will break the parser
+
+<schema>
+# <ACTION NAME> | <filepath> | <TYPE> | start_line:end_line
+```filetype
+content to replace / add, ignored for delete types
+```
+</schema>
+
+<example>
+# Add function documentation | lua/chat-context-ui/parsers/feedback.lua | INSERT | 1:1
+```lua
+--- Sums the numbers in a list and prints the result using vim.print.
+```
+
+# Use local function for sum | lua/chat-context-ui/parsers/feedback.lua | INSERT | 3:3
+```lua
+local function sum_list(list)
+    local sum = 0
+    for _, v in ipairs(list) do
+        sum = sum + v
+    end
+    return sum
+end
+```
+</example>
+
+
+</rules>
+    ]],
+                    goal
+                )
+                local knowledge = contexts(state)
+
+                agent.chat({
+                    prompt = prompt .. knowledge,
+                    resolve = function(result)
+                        local actions = fb_parser.parse(result)
+                        state.fb_actions = actions
+                        state.feedback_lock = false
+                    end,
+                })
+            end, 1000)
+        end,
+    })
+
+    return state
+end
+
 --- @type string represents the last response+question from M.ask
 local qr_history = ""
 
@@ -73,6 +268,8 @@ M.show_previous_answer = function(state)
     if qr_bufnr ~= nil and vim.api.nvim_buf_is_valid(qr_bufnr) then
         return state
     end
+
+    -- TODO: if the questin buffer is already open, close it
 
     qr_bufnr = float.open(qr_response, {
         bufnr = (qr_bufnr and vim.api.nvim_buf_is_valid(qr_bufnr)) and qr_bufnr or nil,

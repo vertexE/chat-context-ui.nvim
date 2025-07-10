@@ -6,12 +6,19 @@ local git = require("chat-context-ui.external.git")
 local ui = require("chat-context-ui.ui")
 local config = require("chat-context-ui.config")
 
---- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"
+--- @alias ccc.uiContext "menu"|"blocks_open"|"blocks_redraw"|"feedback_menu_open"|"feedback_menu_redraw"
 
 --- @class ccc.State
 --- @field requesting_bufnr integer
+--- @field shortcuts boolean
 --- @field menu ccc.Menu
 --- @field loaded boolean if PersistedState has been loaded in
+--- @field feedback_on boolean whether feedback mode is toggled on    TODO: I really should move all feedback to it's own table (see blocks)
+--- @field goal string the current active goal feedback mode will use
+--- @field fb_actions table<ccc.FeedbackAction>
+--- @field feedback_menu_open boolean if we should be showing the feedback menu
+--- @field feedback_menu_bufnr integer
+--- @field feedback_lock boolean
 --- @field blocks ccc.Blocks
 --- @field files string[]
 --- @field url string
@@ -62,6 +69,7 @@ M.default_state = function()
     --- @type ccc.State
     return {
         requesting_bufnr = -1,
+        shortcuts = false,
         opts = {
             copy_on_prompt = false,
         },
@@ -72,7 +80,13 @@ M.default_state = function()
             winr_by_tab = {},
         },
         url = "",
+        goal = "",
+        feedback_on = false,
+        feedback_menu_open = false,
+        feedback_menu_bufnr = -1,
+        feedback_lock = false,
         loaded = false,
+        fb_actions = {},
         files = {},
         blocks = {
             pos = 1,
@@ -137,7 +151,9 @@ M.register_action = function(action, opts)
     else
         opts = opts or register_defaults
     end
-    if not opts.remap_only then
+    -- BUG: below should fix issue where actions
+    -- are added repeatedly when menu opens
+    if not opts.remap_only and opts.bufnr == nil then
         table.insert(state.actions, action)
     end
     vim.keymap.set(action.mode, config.key(action.id), function()
@@ -198,6 +214,7 @@ M.loaded = function()
 end
 
 --- @class ccc.PersistedState
+--- @field goal string
 --- @field blocks table<ccc.Block>
 --- @field block_pos integer
 --- @field url string
@@ -216,6 +233,7 @@ M.persist = function()
         blocks = state.blocks.list,
         block_pos = state.blocks.pos,
         url = state.url,
+        goal = state.goal,
         contexts = contexts,
     }
 
@@ -251,6 +269,7 @@ M.load = function()
         state.blocks.list = persisted.blocks
         state.blocks.pos = persisted.block_pos
         state.url = persisted.url
+        state.goal = persisted.goal
         for _, context in ipairs(state.contexts) do
             if persisted.contexts[context.id] ~= nil then
                 context.active = persisted.contexts[context.id]

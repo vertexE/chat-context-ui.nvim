@@ -35,6 +35,9 @@ M.quit = function(state)
     vim.api.nvim_clear_autocmds({ group = "chat-context-ui.tab.draw" })
     vim.api.nvim_clear_autocmds({ group = "ccc.git.stats.base" })
     vim.api.nvim_clear_autocmds({ group = "ccc.git.stats.minigit" })
+    if state.feedback_on then
+        vim.api.nvim_clear_autocmds({ group = "ccc.assistant.feedback" })
+    end
     state.menu.bufnr = -1
     return state
 end

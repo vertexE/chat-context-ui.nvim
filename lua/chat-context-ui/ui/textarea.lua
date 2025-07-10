@@ -11,6 +11,7 @@ local float = require("chat-context-ui.ui.float")
 --- @field prompt ?string
 --- @field height ?integer
 --- @field width ?integer
+--- @field content ?string
 
 --- @alias ccc.TextareaCallback fun(input: string[])
 
@@ -29,6 +30,10 @@ M.open = function(opts, callback)
         wo = { wrap = true, number = false, relativenumber = false },
         close_on_q = true,
     })
+
+    if opts.content ~= nil then
+        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.split(opts.content, "\n"))
+    end
 
     vim.cmd("startinsert!")
 

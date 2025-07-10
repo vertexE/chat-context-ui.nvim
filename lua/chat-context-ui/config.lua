@@ -2,7 +2,7 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"|"add-definition"|"toggle-help"
+--- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"|"add-definition"|"toggle-help"|"set-goal"|"toggle-feedback"|"open-feedback-menu"|"expand-item"|"select-item"|"shortcuts"
 --- @alias ccc.ContextID "selections"|"active-selection"|"git-staged"|"buffers"|"file-tree"|"url"|"lsp"
 
 --- show/hide the help screen
@@ -16,6 +16,22 @@ M.generate = "generate"
 --- ask a general question
 --- @type ccc.ActionID
 M.ask = "ask"
+
+--- toggle on/off feedback mode
+--- @type ccc.ActionID
+M.toggle_feedback = "toggle-feedback"
+
+--- turn on shortcut
+--- @type ccc.ActionID
+M.shortcuts = "shortcuts"
+
+--- open the feedback menu to select action
+--- @type ccc.ActionID
+M.open_feedback_menu = "open-feedback-menu"
+
+--- set the active goal feedback mode will use
+--- @type ccc.ActionID
+M.set_goal = "set-goal"
 
 --- show the previously asked question
 --- @type ccc.ActionID
@@ -36,6 +52,14 @@ M.list_selections = "list-selections"
 --- include/exclude the code block in the list selections menu
 --- @type ccc.ActionID
 M.toggle_selection = "toggle-selection"
+
+--- include/exclude the code block in the list selections menu
+--- @type ccc.ActionID
+M.expand_item = "expand-item"
+
+--- include/exclude the code block in the list selections menu
+--- @type ccc.ActionID
+M.select_item = "select-item"
 
 --- go to next saved code block in the selections menu
 --- @type ccc.ActionID
@@ -114,10 +138,14 @@ local plugin_opts = {
     keys = {
         --- Actions
         [M.generate] = ",g",
-        [M.ask] = ",a",
+        [M.ask] = ",c", -- chat
+        [M.toggle_feedback] = ",f",
+        [M.shortcuts] = ",s",
+        [M.open_feedback_menu] = ",F",
+        [M.set_goal] = ",G",
         [M.show_previous_answer] = ",A",
-        [M.add_selection] = ",s",
-        [M.list_selections] = ",l",
+        [M.add_selection] = ",a",
+        [M.list_selections] = ",L",
         [M.clear_selections] = ",z",
         [M.add_url] = ",u",
         [M.open_url] = ",U",
@@ -136,6 +164,8 @@ local plugin_opts = {
         --- actions
         [M.generate] = "",
         [M.ask] = "",
+        [M.toggle_feedback] = "",
+        [M.set_goal] = "", -- TODO: might be better to serve as a context??
         [M.show_previous_answer] = " ",
         [M.add_selection] = "󰩭",
         [M.list_selections] = "",
@@ -200,6 +230,8 @@ end
 local hidden_actions = {
     [M.toggle_selection] = "<enter>",
     [M.next_selection] = "<tab>",
+    [M.expand_item] = "<tab>",
+    [M.select_item] = "<enter>",
     [M.previous_selection] = "<s-tab>",
 }
 
@@ -220,6 +252,10 @@ function M.keys()
         --- Actions
         { [M.generate] = M.key(M.generate) },
         { [M.ask] = M.key(M.ask) },
+        { [M.shortcuts] = M.key(M.shortcuts) },
+        { [M.toggle_feedback] = M.key(M.toggle_feedback) },
+        { [M.open_feedback_menu] = M.key(M.open_feedback_menu) },
+        { [M.set_goal] = M.key(M.set_goal) },
         { [M.show_previous_answer] = M.key(M.show_previous_answer) },
         { [M.add_selection] = M.key(M.add_selection) },
         { [M.list_selections] = M.key(M.list_selections) },

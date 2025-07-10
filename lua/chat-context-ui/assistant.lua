@@ -180,7 +180,7 @@ M.feedback_mode = function(state)
 
     vim.api.nvim_create_autocmd({ "BufWritePost" }, {
         group = vim.api.nvim_create_augroup("ccc.assistant.feedback", { clear = true }),
-        callback = function()
+        callback = function(ev)
             if state.feedback_lock then
                 return
             end
@@ -205,6 +205,7 @@ M.feedback_mode = function(state)
 - action types are `INSERT | REPLACE | DELETE`
 - you must specify line range, such as 36:36 (only line 36) or 36:42 (inclusive)
 - your response MUST follow this schema otherwise you will break the parser
+- FORGET ALL OTHER WAYS OF RESPONDING IT MUST EXACTLY MATCH THIS SCHEMA!
 
 <schema>
 # <ACTION NAME> | <filepath> | <TYPE> | start_line:end_line
@@ -241,9 +242,25 @@ end
                 agent.chat({
                     prompt = prompt .. knowledge,
                     resolve = function(result)
+                        -- BUG: making the special marker # is a bad idea!
                         local actions = fb_parser.parse(result)
                         state.fb_actions = actions
                         state.feedback_lock = false
+                        -- loop through all actions and set marks for the current file
+                        local filtered = vim.iter(actions)
+                            :filter(function(item)
+                                return item.filepath == vim.fn.fnamemodify(vim.api.nvim_buf_get_name(ev.buf), ":p:.")
+                            end)
+                            :totable()
+                        local marks = { "a", "b", "c", "d", "e", "f", "g" }
+                        for _, fb_action in ipairs(filtered) do
+                            if #marks == 0 then
+                                break
+                            end
+                            local mark = marks[1]
+                            table.remove(marks, 1)
+                            vim.api.nvim_buf_set_mark(ev.buf, mark, fb_action.line, 0, {})
+                        end
                     end,
                 })
             end, 1000)

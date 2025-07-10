@@ -34,7 +34,7 @@ M.parse = function(s)
     local code_block = {}
 
     for _, line in ipairs(lines) do
-        if string.match(line, "^#") then
+        if string.match(line, "^#") and not code_block_start then
             local segments = vim.split(line, "|")
             -- BUG: if nil vim.trim will throw an error!
             local name = vim.trim(string.sub(segments[1] or "", 2)) -- skip '#'

@@ -253,13 +253,14 @@ end
                             end)
                             :totable()
                         local marks = { "a", "b", "c", "d", "e", "f", "g" }
+                        local max_buf_len = vim.api.nvim_buf_line_count(ev.buf)
                         for _, fb_action in ipairs(filtered) do
                             if #marks == 0 then
                                 break
                             end
                             local mark = marks[1]
                             table.remove(marks, 1)
-                            vim.api.nvim_buf_set_mark(ev.buf, mark, fb_action.line, 0, {})
+                            vim.api.nvim_buf_set_mark(ev.buf, mark, math.min(fb_action.line, max_buf_len), 0, {})
                         end
                     end,
                 })

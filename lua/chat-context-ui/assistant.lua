@@ -67,7 +67,7 @@ M.attach = function(state)
     })
     store.register_action({
         id = config.clear_chat_history,
-        notification = "",
+        notification = "cleared chat history",
         mode = { "n" },
         ui = "menu",
         hidden = false,
@@ -355,8 +355,12 @@ M.ask = function(state)
     return state
 end
 
-M.clear_chat_history = function()
+--- @param state ccc.State
+--- @return ccc.State
+M.clear_chat_history = function(state)
+    -- FIXME: makes more sense to keep qr_history inside state
     qr_history = ""
+    return state
 end
 
 --- @param state ccc.State

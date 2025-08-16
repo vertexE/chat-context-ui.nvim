@@ -2,7 +2,7 @@
 
 local M = {}
 
---- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"|"add-definition"|"toggle-help"|"set-goal"|"toggle-feedback"|"open-feedback-menu"|"expand-item"|"select-item"|"shortcuts"
+--- @alias ccc.ActionID "generate"|"ask"|"add-selection"|"list-selections"|"clear-selections"|"add-url"|"open-url"|"quit"|"toggle-selection"|"next-selection"|"previous-selection"|"show-previous-answer"|"add-definition"|"toggle-help"|"set-goal"|"toggle-feedback"|"open-feedback-menu"|"expand-item"|"select-item"|"shortcuts"|"clear-chat-history"
 --- @alias ccc.ContextID "selections"|"active-selection"|"git-staged"|"buffers"|"file-tree"|"url"|"lsp"
 
 --- show/hide the help screen
@@ -16,6 +16,10 @@ M.generate = "generate"
 --- ask a general question
 --- @type ccc.ActionID
 M.ask = "ask"
+
+--- ask a general question
+--- @type ccc.ActionID
+M.clear_chat_history = "clear-chat-history"
 
 --- toggle on/off feedback mode
 --- @type ccc.ActionID
@@ -139,6 +143,7 @@ local plugin_opts = {
         --- Actions
         [M.generate] = ",g",
         [M.ask] = ",c", -- chat
+        [M.clear_chat_history] = ",C",
         [M.toggle_feedback] = ",f",
         [M.shortcuts] = ",s",
         [M.open_feedback_menu] = ",F",
@@ -164,6 +169,7 @@ local plugin_opts = {
         --- actions
         [M.generate] = "",
         [M.ask] = "",
+        [M.clear_chat_history] = "",
         [M.toggle_feedback] = "",
         [M.set_goal] = "", -- TODO: might be better to serve as a context??
         [M.show_previous_answer] = " ",
@@ -252,6 +258,7 @@ function M.keys()
         --- Actions
         { [M.generate] = M.key(M.generate) },
         { [M.ask] = M.key(M.ask) },
+        { [M.clear_chat_history] = M.key(M.clear_chat_history) },
         { [M.shortcuts] = M.key(M.shortcuts) },
         { [M.toggle_feedback] = M.key(M.toggle_feedback) },
         { [M.open_feedback_menu] = M.key(M.open_feedback_menu) },

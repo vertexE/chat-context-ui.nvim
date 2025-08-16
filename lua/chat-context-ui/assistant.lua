@@ -65,6 +65,14 @@ M.attach = function(state)
         hidden = false,
         apply = M.list_feedback_actions,
     })
+    store.register_action({
+        id = config.clear_chat_history,
+        notification = "",
+        mode = { "n" },
+        ui = "menu",
+        hidden = false,
+        apply = M.clear_chat_history,
+    })
 
     return state
 end
@@ -328,7 +336,8 @@ M.ask = function(state)
                     .. vim.fn.join(input, "\n")
                     .. "</previous-question><previous-answer>"
                     .. response
-                    .. "</previous-answer>"
+                    .. "</previous-answer>\n"
+                    .. qr_history
                 qr_bufnr = float.open(response, {
                     bufnr = (qr_bufnr and vim.api.nvim_buf_is_valid(qr_bufnr)) and qr_bufnr or nil,
                     enter = false,
@@ -346,6 +355,10 @@ M.ask = function(state)
     return state
 end
 
+M.clear_chat_history = function()
+    qr_history = ""
+end
+
 --- @param state ccc.State
 --- @return ccc.State
 M.generate = function(state)
@@ -361,7 +374,7 @@ M.generate = function(state)
 - you must always respond in code.
 - if you want to include an explanation, you MUST use comments.
 - use the data in the <context> tags to inform your decisions
-- for replace mode, only re-create code in the tags <context><active-selection>, the rest of the data in <context> is for reference
+- for replace mode, only re-create code in the tag <active-selection>, the rest of the data in <context> is for reference
 - for insert mode, all code in <context> is only for reference, do not include in output
 - we're in %s mode, 
 </rules>

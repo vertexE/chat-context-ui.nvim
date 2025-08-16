@@ -195,14 +195,14 @@ M.feedback_mode = function(state)
 
             state.feedback_lock = true
 
-            -- TODO: could make this debounce by using a timer?
             vim.defer_fn(function()
                 local goal = state.goal
                 if goal == nil or #goal == 0 then
                     local fname = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t")
-                    goal = string.format("propose improvements to the file %s", fname)
+                    goal = string.format("suggest the next best edit for %s", fname)
                 end
 
+                local cl = vim.api.nvim_win_get_cursor(0)[0]
                 local prompt = string.format(
                     [[
 <goal>%s</goal>
@@ -214,6 +214,9 @@ M.feedback_mode = function(state)
 - you must specify line range, such as 36:36 (only line 36) or 36:42 (inclusive)
 - your response MUST follow this schema otherwise you will break the parser
 - FORGET ALL OTHER WAYS OF RESPONDING IT MUST EXACTLY MATCH THIS SCHEMA!
+- generate code in blocks, e.g. if/else-if, switch, functions, types, classes
+- prefer the functional over iterative approach
+- focus on code near the cursor, current cursor position is at %d
 
 <schema>
 # <ACTION NAME> | <filepath> | <TYPE> | start_line:end_line
@@ -243,7 +246,8 @@ end
 
 </rules>
     ]],
-                    goal
+                    goal,
+                    cl
                 )
                 local knowledge = contexts(state)
 

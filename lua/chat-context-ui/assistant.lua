@@ -381,7 +381,7 @@ M.generate = function(state)
     ]],
         should_replace and "replace" or "insert"
     )
-    prompt_header = prompt_header .. knowledge .. "\n\n" .. "/COPILOT_GENERATE"
+    prompt_header = prompt_header .. knowledge .. qr_history .. "\n\n" .. "/COPILOT_GENERATE"
 
     local _start, _end
     if should_replace then

@@ -126,6 +126,7 @@ M.url = "url"
 --- @class ccc.UiOpts
 --- @field layout ?ccc.layoutOpts
 --- @field float_pos ?ccc.floatPos whether the floating menu should be at the top or bottom
+--- @field split ?"left"|"right" which direction to open split for menu (horizontal)
 
 --- @type ccc.UiOpts
 
@@ -193,6 +194,7 @@ local plugin_opts = {
     ui = {
         layout = "float",
         float_pos = "top",
+        split = "right",
     },
 }
 

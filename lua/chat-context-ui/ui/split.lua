@@ -74,6 +74,7 @@ end
 --- @field wo ?table<string, any>
 --- @field enter ?boolean whether to enter float, defaults to true
 --- @field close_on_q ?boolean
+--- @field split ?"left"|"right"
 
 --- @type ccc.VSplitOpts
 local vertical_defaults = {
@@ -84,6 +85,7 @@ local vertical_defaults = {
     wo = {},
     enter = false,
     close_on_q = true,
+    split = "right",
 }
 
 --- @param content ?string
@@ -108,7 +110,7 @@ M.vertical = function(content, opts)
     opts.width = opts.width ~= nil and opts.width or 35 -- default width for vertical split
 
     local split_win = vim.api.nvim_open_win(opts.bufnr, opts.enter, {
-        split = "right",
+        split = opts.split or vertical_defaults.split,
         width = opts.width,
     })
 

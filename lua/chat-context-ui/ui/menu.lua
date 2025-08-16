@@ -8,7 +8,7 @@ local FLOAT_HEIGHT = 9
 local FLOAT_HEIGHT_HELP = 25
 local FLOAT_WIDTH = 28
 
--- TODO: mv to config
+-- TODO: mv icons_hl to config
 
 --- @type table<ccc.FeedbackActionType,table>
 local icons_hl = {
@@ -196,6 +196,7 @@ M.open = function(state)
     elseif ui.layout == "split" then
         local bufnr, winr = split.vertical(nil, {
             enter = false,
+            split = ui.split,
             wo = { number = false, relativenumber = false, winfixwidth = true },
         })
         state.menu.bufnr = bufnr
@@ -240,6 +241,7 @@ M.reopen = function(state)
         local _, winr = split.vertical(nil, {
             bufnr = state.menu.bufnr,
             enter = false,
+            split = ui.split,
             wo = { number = false, relativenumber = false, winfixwidth = true },
         })
         local tabnr = vim.api.nvim_win_get_tabpage(winr)

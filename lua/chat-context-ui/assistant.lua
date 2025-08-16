@@ -202,7 +202,7 @@ M.feedback_mode = function(state)
                     goal = string.format("suggest the next best edit for %s", fname)
                 end
 
-                local cl = vim.api.nvim_win_get_cursor(0)[0]
+                local cl = vim.api.nvim_win_get_cursor(0)[1]
                 local prompt = string.format(
                     [[
 <goal>%s</goal>

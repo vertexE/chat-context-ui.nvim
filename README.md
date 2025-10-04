@@ -17,7 +17,7 @@ If you were to install and wrap `CopilotChat.nvim`, you could do something like 
 
 ```lua
     {
-        "josiahdenton/chat-context-ui.nvim",
+        "vertexE/chat-context-ui.nvim",
         dependencies = {
             "CopilotC-Nvim/CopilotChat.nvim",
         },
